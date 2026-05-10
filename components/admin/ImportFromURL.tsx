@@ -13,8 +13,7 @@ export default function ImportFromURL({ onImport }: Props) {
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState('')
 
-  async function handleImport(e?: FormEvent) {
-    e?.preventDefault()
+  async function handleImport() {
     if (!url.trim()) return
 
     setStatus('loading')
