@@ -1,11 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import RecipeForm from '@/components/admin/RecipeForm'
+import type { Tag, Category } from '@/types'
 
 export const metadata = { title: 'Add recipe' }
 
 export default async function AddPage() {
-  let tags: { id: string; name: string }[] = []
-  let categories: { id: string; name: string; type: string }[] = []
+  let tags: Tag[] = []
+  let categories: Category[] = []
 
   try {
     const db = await createClient()

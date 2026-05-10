@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import RecipeForm from '@/components/admin/RecipeForm'
-import type { Recipe } from '@/types'
+import type { Recipe, Tag, Category } from '@/types'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -16,8 +16,8 @@ export default async function EditPage({ params }: PageProps) {
   const { slug } = await params
 
   let recipeData: Record<string, unknown> | null = null
-  let tags: { id: string; name: string }[] = []
-  let categories: { id: string; name: string; type: string }[] = []
+  let tags: Tag[] = []
+  let categories: Category[] = []
 
   try {
     const db = await createClient()
@@ -40,12 +40,11 @@ export default async function EditPage({ params }: PageProps) {
 
   if (!recipeData) notFound()
 
+  const raw = recipeData as Record<string, unknown>
   const recipe: Recipe = {
-    ...recipeData,
-    tags: ((recipeData.recipe_tags as { tags: unknown }[]) ?? [])
-      .map((rt) => rt.tags)
-      .filter(Boolean),
-    categories: ((recipeData.recipe_categories as { categories: unknown }[]) ?? [])
+    ...(raw as unknown as Recipe),
+    tags: ((raw.recipe_tags as { tags: Tag }[]) ?? []).map((rt) => rt.tags).filter(Boolean),
+    categories: ((raw.recipe_categories as { categories: Category }[]) ?? [])
       .map((rc) => rc.categories)
       .filter(Boolean),
   }
@@ -54,8 +53,8 @@ export default async function EditPage({ params }: PageProps) {
     <RecipeForm
       mode="edit"
       recipe={recipe}
-      tags={tagsResult.data ?? []}
-      categories={categoriesResult.data ?? []}
+      tags={tags}
+      categories={categories}
     />
   )
 }
