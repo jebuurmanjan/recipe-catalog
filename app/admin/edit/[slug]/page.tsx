@@ -14,28 +14,39 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function EditPage({ params }: PageProps) {
   const { slug } = await params
-  const db = await createClient()
 
-  const [recipeResult, tagsResult, categoriesResult] = await Promise.all([
-    db
-      .from('recipes')
-      .select(`*, recipe_tags(tags(id, name)), recipe_categories(categories(id, name, type))`)
-      .eq('slug', slug)
-      .single(),
-    db.from('tags').select('*').order('name'),
-    db.from('categories').select('*').order('type').order('name'),
-  ])
+  let recipeData: Record<string, unknown> | null = null
+  let tags: { id: string; name: string }[] = []
+  let categories: { id: string; name: string; type: string }[] = []
 
-  if (recipeResult.error || !recipeResult.data) notFound()
+  try {
+    const db = await createClient()
+    const [recipeResult, tagsResult, categoriesResult] = await Promise.all([
+      db
+        .from('recipes')
+        .select(`*, recipe_tags(tags(id, name)), recipe_categories(categories(id, name, type))`)
+        .eq('slug', slug)
+        .single(),
+      db.from('tags').select('*').order('name'),
+      db.from('categories').select('*').order('type').order('name'),
+    ])
+    if (recipeResult.error || !recipeResult.data) notFound()
+    recipeData = recipeResult.data
+    tags = tagsResult.data ?? []
+    categories = categoriesResult.data ?? []
+  } catch {
+    notFound()
+  }
 
-  const data = recipeResult.data
+  if (!recipeData) notFound()
+
   const recipe: Recipe = {
-    ...data,
-    tags: (data.recipe_tags ?? [])
-      .map((rt: { tags: unknown }) => rt.tags)
+    ...recipeData,
+    tags: ((recipeData.recipe_tags as { tags: unknown }[]) ?? [])
+      .map((rt) => rt.tags)
       .filter(Boolean),
-    categories: (data.recipe_categories ?? [])
-      .map((rc: { categories: unknown }) => rc.categories)
+    categories: ((recipeData.recipe_categories as { categories: unknown }[]) ?? [])
+      .map((rc) => rc.categories)
       .filter(Boolean),
   }
 
