@@ -104,7 +104,7 @@ export default function ImageUpload({ value, onChange }: Props) {
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/*"
         onChange={handleChange}
         className="hidden"
         aria-hidden
