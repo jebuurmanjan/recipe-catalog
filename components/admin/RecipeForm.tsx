@@ -116,7 +116,7 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
   }
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-cream pb-24 sm:pb-0">
       {/* Header */}
       <header className="border-b border-border bg-cream sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
@@ -129,7 +129,7 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
               {mode === 'add' ? 'New recipe' : 'Edit recipe'}
             </h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
             {mode === 'edit' && (
               <button
                 type="button"
@@ -265,8 +265,8 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
           </button>
         </div>
 
-        {/* Bottom submit */}
-        <div className="pt-4 border-t border-border flex justify-end gap-3">
+        {/* Bottom submit — desktop only */}
+        <div className="hidden sm:flex pt-4 border-t border-border justify-end gap-3">
           {mode === 'edit' && (
             <a href={`/recipe/${recipe!.slug}`} className="btn-secondary">
               View recipe
@@ -281,6 +281,27 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
           </button>
         </div>
       </form>
+
+      {/* Mobile sticky bottom bar */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 border-t border-border bg-cream/95 backdrop-blur-sm p-3 flex gap-2 z-10">
+        {mode === 'edit' && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="btn-ghost text-red-500 hover:bg-red-50 hover:text-red-600 px-4 py-3"
+          >
+            Delete
+          </button>
+        )}
+        <button
+          type="submit"
+          form="recipe-form"
+          disabled={saving}
+          className="btn-primary flex-1 py-3 text-base disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : mode === 'add' ? 'Publish recipe' : 'Save changes'}
+        </button>
+      </div>
     </div>
   )
 }

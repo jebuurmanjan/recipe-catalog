@@ -3,6 +3,7 @@ import { useState, useCallback, useTransition } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import SearchBar from './SearchBar'
 import FilterSidebar from './FilterSidebar'
+import MobileFilterModal from './MobileFilterModal'
 import LabelsModal from './LabelsModal'
 import RecipeGrid from './RecipeGrid'
 import RecipeList from './RecipeList'
@@ -51,6 +52,7 @@ export default function CatalogPage({
   const [labelsModalOpen, setLabelsModalOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [showConcepts, setShowConcepts] = useState(false)
+  const [filterModalOpen, setFilterModalOpen] = useState(false)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -175,11 +177,27 @@ export default function CatalogPage({
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 sm:pb-8">
-        {/* Search + view toggle row */}
+        {/* Search + filter button (mobile) + view toggle row */}
         <div className="flex items-center gap-3 mb-8 no-print">
           <div className="flex-1">
             <SearchBar value={search} onChange={handleSearch} />
           </div>
+          {/* Mobile filter button */}
+          <button
+            onClick={() => setFilterModalOpen(true)}
+            className="lg:hidden btn-secondary flex items-center gap-1.5 relative"
+            aria-label="Open filters"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+              <path d="M1 3h12M3 7h8M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            Filters
+            {activeFiltersCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-terracotta text-white text-[10px] font-bold flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
           <ViewToggle view={view} onChange={setView} />
         </div>
 
@@ -202,19 +220,6 @@ export default function CatalogPage({
 
           {/* Main content */}
           <div className="flex-1 min-w-0">
-            {/* Mobile filter bar */}
-            <div className="flex flex-wrap gap-2 mb-4 lg:hidden no-print">
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={handleClear}
-                  className="tag-pill"
-                  style={{ color: 'var(--accent)', borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)' }}
-                >
-                  {t('clearFilters', { n: activeFiltersCount })}
-                </button>
-              )}
-            </div>
-
             {/* Result count */}
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
@@ -251,6 +256,22 @@ export default function CatalogPage({
           {t('addRecipe')}
         </a>
       </div>
+
+      {filterModalOpen && (
+        <MobileFilterModal
+          tags={tagList}
+          categories={categoryList}
+          selectedTags={selectedTags}
+          selectedCategories={selectedCategories}
+          showConcepts={showConcepts}
+          onTagToggle={handleTagToggle}
+          onCategoryToggle={handleCategoryToggle}
+          onClear={handleClear}
+          onEditLabels={() => { setFilterModalOpen(false); setLabelsModalOpen(true) }}
+          onShowConceptsToggle={handleShowConceptsToggle}
+          onClose={() => setFilterModalOpen(false)}
+        />
+      )}
 
       {labelsModalOpen && (
         <LabelsModal
