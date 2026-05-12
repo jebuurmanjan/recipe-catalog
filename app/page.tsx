@@ -31,7 +31,8 @@ async function CatalogData({ searchParams }: PageProps) {
     } else {
       let qb = db
         .from('recipes')
-        .select('id, title, slug, description, image_url, created_at')
+        .select('id, title, slug, description, image_url, is_concept, created_at')
+        .eq('is_concept', false)
         .order('created_at', { ascending: false })
 
       let recipeIds: string[] | null = null
