@@ -3,7 +3,7 @@ import { useState, FormEvent } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function LoginForm() {
-  const [passphrase, setPassphrase] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -18,12 +18,12 @@ export default function LoginForm() {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passphrase }),
+        body: JSON.stringify({ password }),
       })
 
       if (!res.ok) {
         const data = await res.json()
-        setError(data.error ?? 'Invalid passphrase')
+        setError(data.error ?? 'Incorrect password')
         return
       }
 
@@ -42,19 +42,19 @@ export default function LoginForm() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <h1 className="font-serif text-3xl font-bold text-ink">Recipe Catalog</h1>
-          <p className="text-ink-dim mt-2 text-sm">Enter the editor passphrase to continue</p>
+          <p className="text-ink-dim mt-2 text-sm">Enter your password to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-4">
           <div>
-            <label htmlFor="passphrase" className="label">Passphrase</label>
+            <label htmlFor="password" className="label">Password</label>
             <input
-              id="passphrase"
+              id="password"
               type="password"
-              value={passphrase}
-              onChange={(e) => setPassphrase(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="input-base"
-              placeholder="Enter passphrase"
+              placeholder="Enter password"
               autoFocus
               required
             />
@@ -68,7 +68,7 @@ export default function LoginForm() {
 
           <button
             type="submit"
-            disabled={loading || !passphrase}
+            disabled={loading || !password}
             className="btn-primary w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Checking…' : 'Enter'}
