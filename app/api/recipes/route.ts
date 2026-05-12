@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { getSession } from '@/lib/session'
 import { slugify } from '@/lib/utils'
@@ -10,7 +9,7 @@ export async function GET(req: NextRequest) {
   const tagIds = searchParams.getAll('tag').filter(Boolean)
   const catIds = searchParams.getAll('category').filter(Boolean)
 
-  const db = await createClient()
+  const db = createServiceClient()
 
   // Full-text search via RPC when a query is present
   if (query.trim()) {

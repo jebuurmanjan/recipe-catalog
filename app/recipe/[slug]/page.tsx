@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import RecipeDetail from '@/components/recipe/RecipeDetail'
 import type { Recipe, Tag, Category } from '@/types'
 
@@ -11,7 +11,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params
-    const db = await createClient()
+    const db = createServiceClient()
     const { data } = await db
       .from('recipes')
       .select('title, description')
@@ -35,7 +35,7 @@ export default async function RecipePage({ params }: PageProps) {
   let recipe: Recipe | null = null
 
   try {
-    const db = await createClient()
+    const db = createServiceClient()
 
     const { data, error } = await db
       .from('recipes')

@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import CatalogPage from '@/components/catalog/CatalogPage'
 
 interface PageProps {
@@ -17,7 +17,7 @@ async function CatalogData({ searchParams }: PageProps) {
   const catIds = [params.category ?? []].flat().filter(Boolean)
 
   try {
-    const db = await createClient()
+    const db = createServiceClient()
 
     const [categoriesResult, tagsResult] = await Promise.all([
       db.from('categories').select('*').order('type').order('name'),

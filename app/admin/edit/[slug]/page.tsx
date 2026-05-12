@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import RecipeForm from '@/components/admin/RecipeForm'
 import type { Recipe, Tag, Category } from '@/types'
 
@@ -20,7 +20,7 @@ export default async function EditPage({ params }: PageProps) {
   let categories: Category[] = []
 
   try {
-    const db = await createClient()
+    const db = createServiceClient()
     const [recipeResult, tagsResult, categoriesResult] = await Promise.all([
       db
         .from('recipes')

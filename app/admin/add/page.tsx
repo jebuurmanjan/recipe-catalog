@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import RecipeForm from '@/components/admin/RecipeForm'
 import type { Tag, Category } from '@/types'
 
@@ -9,7 +9,7 @@ export default async function AddPage() {
   let categories: Category[] = []
 
   try {
-    const db = await createClient()
+    const db = createServiceClient()
     const [tagsResult, categoriesResult] = await Promise.all([
       db.from('tags').select('*').order('name'),
       db.from('categories').select('*').order('type').order('name'),
