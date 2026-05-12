@@ -135,6 +135,9 @@ export default function CatalogPage({
             Recipe Catalog
           </h1>
           <div className="flex items-center gap-3">
+            <a href="/admin/import" className="btn-secondary text-sm hidden sm:inline-flex">
+              Import photos
+            </a>
             <a href="/admin/add" className="btn-primary text-sm hidden sm:inline-flex">
               + Add recipe
             </a>
