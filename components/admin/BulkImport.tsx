@@ -64,13 +64,17 @@ export default function BulkImport() {
       updateItem(item.id, { status: 'uploading' })
 
       try {
-        // 1. Upload image
-        const form = new FormData()
-        form.append('file', item.file)
-        const uploadRes = await fetch('/api/upload', { method: 'POST', body: form })
-        const uploadData = await uploadRes.json()
-
-        if (!uploadRes.ok) throw new Error(uploadData.error ?? 'Upload failed')
+        // 1. Upload image (non-fatal — recipe is created even if upload fails)
+        let imageUrl: string | undefined
+        try {
+          const form = new FormData()
+          form.append('file', item.file)
+          const uploadRes = await fetch('/api/upload', { method: 'POST', body: form })
+          const uploadData = await uploadRes.json()
+          if (uploadRes.ok && uploadData.url) imageUrl = uploadData.url
+        } catch {
+          // image upload failed — recipe will be created without a photo
+        }
 
         // 2. Create recipe stub
         const recipeRes = await fetch('/api/recipes', {
@@ -78,7 +82,7 @@ export default function BulkImport() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: item.title.trim(),
-            image_url: uploadData.url,
+            image_url: imageUrl,
             ingredients: [],
             steps: [],
           }),
