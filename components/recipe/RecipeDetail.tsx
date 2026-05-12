@@ -9,6 +9,8 @@ interface Props {
 }
 
 export default function RecipeDetail({ recipe }: Props) {
+  const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients : []
+  const steps = Array.isArray(recipe.steps) ? recipe.steps : []
   return (
     <div className="min-h-screen bg-cream">
       {/* Nav */}
@@ -83,9 +85,9 @@ export default function RecipeDetail({ recipe }: Props) {
             <h2 className="font-serif text-2xl font-semibold text-ink mb-4 pb-2 border-b border-border">
               Ingredients
             </h2>
-            {recipe.ingredients.length > 0 ? (
+            {ingredients.length > 0 ? (
               <ul className="space-y-2">
-                {recipe.ingredients.map((ingredient, i) => (
+                {ingredients.map((ingredient, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-ink-dim">
                     <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-terracotta flex-shrink-0" />
                     {ingredient}
@@ -102,9 +104,9 @@ export default function RecipeDetail({ recipe }: Props) {
             <h2 className="font-serif text-2xl font-semibold text-ink mb-4 pb-2 border-b border-border">
               Instructions
             </h2>
-            {recipe.steps.length > 0 ? (
+            {steps.length > 0 ? (
               <ol className="space-y-5">
-                {recipe.steps.map((step, i) => (
+                {steps.map((step, i) => (
                   <li key={i} className="flex gap-4">
                     <span className="flex-shrink-0 w-7 h-7 rounded-full bg-terracotta/10 text-terracotta text-xs font-bold flex items-center justify-center mt-0.5">
                       {i + 1}
