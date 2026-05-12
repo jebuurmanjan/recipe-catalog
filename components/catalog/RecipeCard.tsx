@@ -13,37 +13,24 @@ export default function RecipeCard({ recipe, view }: Props) {
     return (
       <Link
         href={`/recipe/${recipe.slug}`}
-        className="group flex items-center gap-4 p-4 rounded-xl bg-surface border border-border hover:border-terracotta/30 hover:shadow-md transition-all"
+        className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border hover:border-terracotta/30 hover:shadow-sm transition-all"
       >
-        <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-surface-2">
-          {recipe.image_url ? (
-            <Image
-              src={recipe.image_url}
-              alt={recipe.title}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              sizes="80px"
-            />
-          ) : (
-            <PlaceholderIcon />
-          )}
-        </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-serif text-base font-semibold text-ink group-hover:text-terracotta transition-colors truncate">
             {recipe.title}
           </h3>
           {recipe.description && (
-            <p className="text-sm text-ink-dim mt-0.5 line-clamp-1">
-              {truncate(recipe.description, 120)}
+            <p className="text-sm text-ink-dim mt-0.5 truncate">
+              {recipe.description}
             </p>
           )}
           {((recipe.tags?.length ?? 0) > 0 || (recipe.categories?.length ?? 0) > 0) && (
-            <div className="flex flex-wrap gap-1 mt-1.5">
-              {recipe.tags?.slice(0, 3).map((t) => (
-                <span key={t.id} className="tag-pill">{t.name}</span>
-              ))}
+            <div className="flex flex-wrap gap-1 mt-1">
               {recipe.categories?.slice(0, 2).map((c) => (
                 <span key={c.id} className="tag-pill">{c.name}</span>
+              ))}
+              {recipe.tags?.slice(0, 3).map((t) => (
+                <span key={t.id} className="tag-pill">{t.name}</span>
               ))}
             </div>
           )}
