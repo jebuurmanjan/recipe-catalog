@@ -145,7 +145,7 @@ export default function CatalogPage({
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 sm:pb-8">
         {/* Search + view toggle row */}
         <div className="flex items-center gap-3 mb-8 no-print">
           <div className="flex-1">
@@ -197,6 +197,16 @@ export default function CatalogPage({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile sticky bottom bar */}
+      <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-cream/95 backdrop-blur-sm border-t border-border p-3 flex gap-2 no-print z-10">
+        <a href="/admin/import" className="btn-secondary flex-1 text-center text-sm py-3">
+          Import photos
+        </a>
+        <a href="/admin/add" className="btn-primary flex-1 text-center text-sm py-3">
+          + Add recipe
+        </a>
       </div>
 
       {labelsModalOpen && (

@@ -37,11 +37,11 @@ h1, h2, h3, h4 {
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-terracotta text-white font-medium text-sm transition-colors hover:bg-terracotta-dark active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-terracotta text-white font-medium text-sm transition-colors hover:bg-terracotta-dark active:scale-[0.98];
   }
 
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border text-ink bg-surface font-medium text-sm transition-colors hover:bg-surface-2 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-border text-ink bg-surface font-medium text-sm transition-colors hover:bg-surface-2 active:scale-[0.98];
   }
 
   .btn-ghost {
