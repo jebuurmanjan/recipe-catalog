@@ -7,6 +7,8 @@ import LabelsModal from './LabelsModal'
 import RecipeGrid from './RecipeGrid'
 import RecipeList from './RecipeList'
 import ViewToggle from '@/components/ui/ViewToggle'
+import SettingsModal from '@/components/ui/SettingsModal'
+import { useLanguage } from '@/contexts/LanguageContext'
 import type { RecipeCard, Tag, Category } from '@/types'
 
 interface Props {
@@ -18,6 +20,16 @@ interface Props {
   initialCategories: string[]
 }
 
+function GearIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  )
+}
+
 export default function CatalogPage({
   initialRecipes,
   tags,
@@ -26,6 +38,7 @@ export default function CatalogPage({
   initialTags,
   initialCategories,
 }: Props) {
+  const { t } = useLanguage()
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const [search, setSearch] = useState(initialSearch)
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags)
@@ -36,6 +49,7 @@ export default function CatalogPage({
   const [tagList, setTagList] = useState<Tag[]>(tags)
   const [categoryList, setCategoryList] = useState<Category[]>(categories)
   const [labelsModalOpen, setLabelsModalOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -54,7 +68,6 @@ export default function CatalogPage({
         const data = await res.json()
         setRecipes(data.recipes ?? [])
 
-        // Update URL without navigation
         startTransition(() => {
           router.push(`${pathname}?${params.toString()}`, { scroll: false })
         })
@@ -104,7 +117,6 @@ export default function CatalogPage({
 
   const handleTagsChange = useCallback((updatedTags: Tag[]) => {
     setTagList(updatedTags)
-    // Deselect any tags that were deleted
     const updatedIds = new Set(updatedTags.map((t) => t.id))
     setSelectedTags((prev) => {
       const next = prev.filter((id) => updatedIds.has(id))
@@ -115,7 +127,6 @@ export default function CatalogPage({
 
   const handleCategoriesChange = useCallback((updatedCategories: Category[]) => {
     setCategoryList(updatedCategories)
-    // Deselect any categories that were deleted
     const updatedIds = new Set(updatedCategories.map((c) => c.id))
     setSelectedCategories((prev) => {
       const next = prev.filter((id) => updatedIds.has(id))
@@ -127,20 +138,30 @@ export default function CatalogPage({
   const activeFiltersCount = selectedTags.length + selectedCategories.length
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-base)' }}>
       {/* Header */}
-      <header className="border-b border-border bg-cream/80 backdrop-blur-sm sticky top-0 z-10 no-print">
+      <header
+        className="border-b sticky top-0 z-10 no-print backdrop-blur-sm"
+        style={{ borderColor: 'var(--border)', backgroundColor: 'color-mix(in srgb, var(--bg-base) 80%, transparent)' }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
-          <h1 className="font-serif text-2xl font-bold text-ink tracking-tight">
-            Recipe Catalog
+          <h1 className="font-serif text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            {t('recipeCatalog')}
           </h1>
           <div className="flex items-center gap-3">
             <a href="/admin/import" className="btn-secondary text-sm hidden sm:inline-flex">
-              Import photos
+              {t('importPhotos')}
             </a>
             <a href="/admin/add" className="btn-primary text-sm hidden sm:inline-flex">
-              + Add recipe
+              {t('addRecipe')}
             </a>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="btn-ghost p-2"
+              aria-label={t('settings')}
+            >
+              <GearIcon />
+            </button>
           </div>
         </div>
       </header>
@@ -174,16 +195,22 @@ export default function CatalogPage({
             {/* Mobile filter bar */}
             <div className="flex flex-wrap gap-2 mb-4 lg:hidden no-print">
               {activeFiltersCount > 0 && (
-                <button onClick={handleClear} className="tag-pill text-terracotta border-terracotta/30">
-                  Clear {activeFiltersCount} filter{activeFiltersCount > 1 ? 's' : ''}
+                <button
+                  onClick={handleClear}
+                  className="tag-pill"
+                  style={{ color: 'var(--accent)', borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)' }}
+                >
+                  {t('clearFilters', { n: activeFiltersCount })}
                 </button>
               )}
             </div>
 
             {/* Result count */}
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-ink-muted">
-                {loading ? 'Loading…' : `${recipes.length} recipe${recipes.length !== 1 ? 's' : ''}`}
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                {loading
+                  ? t('loading')
+                  : t('recipeCount', { n: recipes.length })}
               </p>
             </div>
 
@@ -200,12 +227,18 @@ export default function CatalogPage({
       </div>
 
       {/* Mobile sticky bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-cream/95 backdrop-blur-sm border-t border-border p-3 flex gap-2 no-print z-10">
+      <div
+        className="fixed bottom-0 left-0 right-0 sm:hidden border-t p-3 flex gap-2 no-print z-10 backdrop-blur-sm"
+        style={{
+          borderColor: 'var(--border)',
+          backgroundColor: 'color-mix(in srgb, var(--bg-base) 95%, transparent)',
+        }}
+      >
         <a href="/admin/import" className="btn-secondary flex-1 text-center text-sm py-3">
-          Import photos
+          {t('importPhotos')}
         </a>
         <a href="/admin/add" className="btn-primary flex-1 text-center text-sm py-3">
-          + Add recipe
+          {t('addRecipe')}
         </a>
       </div>
 
@@ -217,6 +250,10 @@ export default function CatalogPage({
           onTagsChange={handleTagsChange}
           onCategoriesChange={handleCategoriesChange}
         />
+      )}
+
+      {settingsOpen && (
+        <SettingsModal onClose={() => setSettingsOpen(false)} />
       )}
     </div>
   )
