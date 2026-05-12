@@ -31,6 +31,7 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
     recipe?.categories?.map((c) => c.id) ?? []
   )
   const [allTags, setAllTags] = useState<Tag[]>(allTagsProp)
+  const [isConcept, setIsConcept] = useState(recipe?.is_concept ?? false)
 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -77,6 +78,7 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
         source_url: sourceUrl.trim() || null,
         tagIds: selectedTags,
         categoryIds: selectedCategories,
+        is_concept: isConcept,
       }
 
       const url = mode === 'edit' ? `/api/recipes/${recipe!.slug}` : '/api/recipes'
@@ -238,6 +240,29 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
         <div>
           <p className="label">Instructions</p>
           <StepsInput value={steps} onChange={setSteps} />
+        </div>
+
+        {/* Concept toggle */}
+        <div className="flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3">
+          <div>
+            <p className="text-sm font-medium text-ink">Mark as concept</p>
+            <p className="text-xs text-ink-muted mt-0.5">Concept recipes are hidden from the catalog by default</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isConcept}
+            onClick={() => setIsConcept((v) => !v)}
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+              isConcept ? 'bg-terracotta' : 'bg-border'
+            }`}
+          >
+            <span
+              className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+                isConcept ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
         </div>
 
         {/* Bottom submit */}

@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   const query = searchParams.get('q') ?? ''
   const tagIds = searchParams.getAll('tag').filter(Boolean)
   const catIds = searchParams.getAll('category').filter(Boolean)
+  const showConcepts = searchParams.get('concepts') === 'true'
 
   const db = createServiceClient()
 
@@ -48,8 +49,12 @@ export async function GET(req: NextRequest) {
 
   let qb = db
     .from('recipes')
-    .select('id, title, slug, description, image_url, created_at')
+    .select('id, title, slug, description, image_url, is_concept, created_at')
     .order('created_at', { ascending: false })
+
+  if (!showConcepts) {
+    qb = qb.eq('is_concept', false)
+  }
 
   if (recipeIds !== null) {
     if (recipeIds.length === 0) return NextResponse.json({ recipes: [] })
@@ -68,7 +73,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { title, description, ingredients, steps, image_url, source_url, tagIds, categoryIds } = body
+  const { title, description, ingredients, steps, image_url, source_url, tagIds, categoryIds, is_concept } = body
 
   if (!title?.trim()) {
     return NextResponse.json({ error: 'Title is required' }, { status: 400 })
@@ -81,7 +86,7 @@ export async function POST(req: NextRequest) {
   let slug = baseSlug
   let { data: recipe, error } = await db
     .from('recipes')
-    .insert({ title, slug, description, ingredients, steps, image_url, source_url })
+    .insert({ title, slug, description, ingredients, steps, image_url, source_url, is_concept: is_concept ?? false })
     .select()
     .single()
 
@@ -89,7 +94,7 @@ export async function POST(req: NextRequest) {
     slug = `${baseSlug}-${Date.now()}`
     ;({ data: recipe, error } = await db
       .from('recipes')
-      .insert({ title, slug, description, ingredients, steps, image_url, source_url })
+      .insert({ title, slug, description, ingredients, steps, image_url, source_url, is_concept: is_concept ?? false })
       .select()
       .single())
   }

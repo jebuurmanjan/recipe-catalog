@@ -7,6 +7,7 @@ export interface Recipe {
   steps: string[]
   image_url: string | null
   source_url: string | null
+  is_concept: boolean
   created_at: string
   updated_at: string
   tags?: Tag[]
@@ -49,6 +50,7 @@ export interface RecipeCard {
   slug: string
   description: string | null
   image_url: string | null
+  is_concept: boolean
   created_at: string
   tags?: Tag[]
   categories?: Category[]

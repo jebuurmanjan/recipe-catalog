@@ -16,9 +16,16 @@ export default function RecipeCard({ recipe, view }: Props) {
         className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border hover:border-terracotta/30 hover:shadow-sm transition-all"
       >
         <div className="flex-1 min-w-0">
-          <h3 className="font-serif text-base font-semibold text-ink group-hover:text-terracotta transition-colors truncate">
-            {recipe.title}
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-serif text-base font-semibold text-ink group-hover:text-terracotta transition-colors truncate">
+              {recipe.title}
+            </h3>
+            {recipe.is_concept && (
+              <span className="flex-shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                Concept
+              </span>
+            )}
+          </div>
           {recipe.description && (
             <p className="text-sm text-ink-dim mt-0.5 truncate">
               {recipe.description}
@@ -59,6 +66,11 @@ export default function RecipeCard({ recipe, view }: Props) {
           />
         ) : (
           <PlaceholderIcon />
+        )}
+        {recipe.is_concept && (
+          <span className="absolute top-2 left-2 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100/90 text-amber-700 border border-amber-200">
+            Concept
+          </span>
         )}
       </div>
       <div className="p-4 flex flex-col flex-1">

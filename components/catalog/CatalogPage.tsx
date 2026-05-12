@@ -50,19 +50,21 @@ export default function CatalogPage({
   const [categoryList, setCategoryList] = useState<Category[]>(categories)
   const [labelsModalOpen, setLabelsModalOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [showConcepts, setShowConcepts] = useState(false)
 
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   const fetchRecipes = useCallback(
-    async (q: string, tags: string[], cats: string[]) => {
+    async (q: string, tags: string[], cats: string[], concepts: boolean) => {
       setLoading(true)
       try {
         const params = new URLSearchParams()
         if (q) params.set('q', q)
         tags.forEach((t) => params.append('tag', t))
         cats.forEach((c) => params.append('category', c))
+        if (concepts) params.set('concepts', 'true')
 
         const res = await fetch(`/api/recipes?${params.toString()}`)
         const data = await res.json()
@@ -81,9 +83,9 @@ export default function CatalogPage({
   const handleSearch = useCallback(
     (value: string) => {
       setSearch(value)
-      fetchRecipes(value, selectedTags, selectedCategories)
+      fetchRecipes(value, selectedTags, selectedCategories, showConcepts)
     },
-    [fetchRecipes, selectedTags, selectedCategories]
+    [fetchRecipes, selectedTags, selectedCategories, showConcepts]
   )
 
   const handleTagToggle = useCallback(
@@ -92,9 +94,9 @@ export default function CatalogPage({
         ? selectedTags.filter((t) => t !== id)
         : [...selectedTags, id]
       setSelectedTags(next)
-      fetchRecipes(search, next, selectedCategories)
+      fetchRecipes(search, next, selectedCategories, showConcepts)
     },
-    [fetchRecipes, search, selectedTags, selectedCategories]
+    [fetchRecipes, search, selectedTags, selectedCategories, showConcepts]
   )
 
   const handleCategoryToggle = useCallback(
@@ -103,37 +105,43 @@ export default function CatalogPage({
         ? selectedCategories.filter((c) => c !== id)
         : [...selectedCategories, id]
       setSelectedCategories(next)
-      fetchRecipes(search, selectedTags, next)
+      fetchRecipes(search, selectedTags, next, showConcepts)
     },
-    [fetchRecipes, search, selectedTags, selectedCategories]
+    [fetchRecipes, search, selectedTags, selectedCategories, showConcepts]
   )
 
   const handleClear = useCallback(() => {
     setSelectedTags([])
     setSelectedCategories([])
     setSearch('')
-    fetchRecipes('', [], [])
-  }, [fetchRecipes])
+    fetchRecipes('', [], [], showConcepts)
+  }, [fetchRecipes, showConcepts])
+
+  const handleShowConceptsToggle = useCallback(() => {
+    const next = !showConcepts
+    setShowConcepts(next)
+    fetchRecipes(search, selectedTags, selectedCategories, next)
+  }, [fetchRecipes, search, selectedTags, selectedCategories, showConcepts])
 
   const handleTagsChange = useCallback((updatedTags: Tag[]) => {
     setTagList(updatedTags)
     const updatedIds = new Set(updatedTags.map((t) => t.id))
     setSelectedTags((prev) => {
       const next = prev.filter((id) => updatedIds.has(id))
-      if (next.length !== prev.length) fetchRecipes(search, next, selectedCategories)
+      if (next.length !== prev.length) fetchRecipes(search, next, selectedCategories, showConcepts)
       return next
     })
-  }, [fetchRecipes, search, selectedCategories])
+  }, [fetchRecipes, search, selectedCategories, showConcepts])
 
   const handleCategoriesChange = useCallback((updatedCategories: Category[]) => {
     setCategoryList(updatedCategories)
     const updatedIds = new Set(updatedCategories.map((c) => c.id))
     setSelectedCategories((prev) => {
       const next = prev.filter((id) => updatedIds.has(id))
-      if (next.length !== prev.length) fetchRecipes(search, selectedTags, next)
+      if (next.length !== prev.length) fetchRecipes(search, selectedTags, next, showConcepts)
       return next
     })
-  }, [fetchRecipes, search, selectedTags])
+  }, [fetchRecipes, search, selectedTags, showConcepts])
 
   const activeFiltersCount = selectedTags.length + selectedCategories.length
 
@@ -183,10 +191,12 @@ export default function CatalogPage({
               categories={categoryList}
               selectedTags={selectedTags}
               selectedCategories={selectedCategories}
+              showConcepts={showConcepts}
               onTagToggle={handleTagToggle}
               onCategoryToggle={handleCategoryToggle}
               onClear={handleClear}
               onEditLabels={() => setLabelsModalOpen(true)}
+              onShowConceptsToggle={handleShowConceptsToggle}
             />
           </div>
 
