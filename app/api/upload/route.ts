@@ -3,8 +3,18 @@ import { getSession } from '@/lib/session'
 import { createServiceClient } from '@/lib/supabase/service'
 
 const BUCKET = 'recipe-images'
-const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const MAX_SIZE = 10 * 1024 * 1024 // 10 MB (iPhone photos can be large)
+
+// Map MIME type → safe file extension (never trust the original filename)
+const MIME_TO_EXT: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/heic': 'jpg', // Safari converts HEIC → JPEG before sending
+  'image/heif': 'jpg',
+}
 
 export async function POST(req: NextRequest) {
   const session = await getSession()
@@ -20,14 +30,15 @@ export async function POST(req: NextRequest) {
   }
 
   if (file.size > MAX_SIZE) {
-    return NextResponse.json({ error: 'File exceeds 5 MB limit' }, { status: 413 })
+    return NextResponse.json({ error: 'File exceeds 10 MB limit' }, { status: 413 })
   }
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return NextResponse.json({ error: 'Unsupported file type' }, { status: 415 })
+  const ext = MIME_TO_EXT[file.type]
+  if (!ext) {
+    return NextResponse.json({ error: `Unsupported file type: ${file.type}` }, { status: 415 })
   }
 
-  const ext = file.name.split('.').pop() ?? 'jpg'
+  // Use UUID + MIME-derived extension — never the original filename (may have spaces, .HEIC, etc.)
   const filename = `${crypto.randomUUID()}.${ext}`
   const buffer = Buffer.from(await file.arrayBuffer())
 
