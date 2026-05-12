@@ -1,12 +1,12 @@
 import { ImageResponse } from 'next/og'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 export const size = { width: 32, height: 32 }
 export const contentType = 'image/png'
 
-export default async function Icon() {
-  const fontData = await fetch(
-    'https://fonts.gstatic.com/s/playfairdisplay/v37/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvUDQ.woff2'
-  ).then((res) => res.arrayBuffer())
+export default function Icon() {
+  const fontData = readFileSync(join(process.cwd(), 'public/fonts/playfair-bold.woff2'))
 
   return new ImageResponse(
     <div
