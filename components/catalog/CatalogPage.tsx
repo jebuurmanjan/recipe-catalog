@@ -3,6 +3,7 @@ import { useState, useCallback, useTransition } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import SearchBar from './SearchBar'
 import FilterSidebar from './FilterSidebar'
+import LabelsModal from './LabelsModal'
 import RecipeGrid from './RecipeGrid'
 import RecipeList from './RecipeList'
 import ViewToggle from '@/components/ui/ViewToggle'
@@ -32,6 +33,9 @@ export default function CatalogPage({
   const [recipes, setRecipes] = useState<RecipeCard[]>(initialRecipes)
   const [loading, setLoading] = useState(false)
   const [, startTransition] = useTransition()
+  const [tagList, setTagList] = useState<Tag[]>(tags)
+  const [categoryList, setCategoryList] = useState<Category[]>(categories)
+  const [labelsModalOpen, setLabelsModalOpen] = useState(false)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -98,6 +102,28 @@ export default function CatalogPage({
     fetchRecipes('', [], [])
   }, [fetchRecipes])
 
+  const handleTagsChange = useCallback((updatedTags: Tag[]) => {
+    setTagList(updatedTags)
+    // Deselect any tags that were deleted
+    const updatedIds = new Set(updatedTags.map((t) => t.id))
+    setSelectedTags((prev) => {
+      const next = prev.filter((id) => updatedIds.has(id))
+      if (next.length !== prev.length) fetchRecipes(search, next, selectedCategories)
+      return next
+    })
+  }, [fetchRecipes, search, selectedCategories])
+
+  const handleCategoriesChange = useCallback((updatedCategories: Category[]) => {
+    setCategoryList(updatedCategories)
+    // Deselect any categories that were deleted
+    const updatedIds = new Set(updatedCategories.map((c) => c.id))
+    setSelectedCategories((prev) => {
+      const next = prev.filter((id) => updatedIds.has(id))
+      if (next.length !== prev.length) fetchRecipes(search, selectedTags, next)
+      return next
+    })
+  }, [fetchRecipes, search, selectedTags])
+
   const activeFiltersCount = selectedTags.length + selectedCategories.length
 
   return (
@@ -129,13 +155,14 @@ export default function CatalogPage({
           {/* Sidebar */}
           <div className="hidden lg:block w-52 flex-shrink-0 no-print">
             <FilterSidebar
-              tags={tags}
-              categories={categories}
+              tags={tagList}
+              categories={categoryList}
               selectedTags={selectedTags}
               selectedCategories={selectedCategories}
               onTagToggle={handleTagToggle}
               onCategoryToggle={handleCategoryToggle}
               onClear={handleClear}
+              onEditLabels={() => setLabelsModalOpen(true)}
             />
           </div>
 
@@ -168,6 +195,16 @@ export default function CatalogPage({
           </div>
         </div>
       </div>
+
+      {labelsModalOpen && (
+        <LabelsModal
+          tags={tagList}
+          categories={categoryList}
+          onClose={() => setLabelsModalOpen(false)}
+          onTagsChange={handleTagsChange}
+          onCategoriesChange={handleCategoriesChange}
+        />
+      )}
     </div>
   )
 }

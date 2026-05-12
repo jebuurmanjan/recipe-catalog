@@ -17,6 +17,7 @@ interface FilterSidebarProps {
   onTagToggle: (id: string) => void
   onCategoryToggle: (id: string) => void
   onClear: () => void
+  onEditLabels: () => void
 }
 
 export default function FilterSidebar({
@@ -27,6 +28,7 @@ export default function FilterSidebar({
   onTagToggle,
   onCategoryToggle,
   onClear,
+  onEditLabels,
 }: FilterSidebarProps) {
   const hasFilters = selectedTags.length > 0 || selectedCategories.length > 0
 
@@ -37,6 +39,20 @@ export default function FilterSidebar({
 
   return (
     <aside className="space-y-6">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider">Filters</p>
+        <button
+          onClick={onEditLabels}
+          className="flex items-center gap-1 text-xs text-ink-muted hover:text-terracotta transition-colors"
+          title="Manage labels"
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11.5 2.5l2 2-9 9H2.5v-2l9-9z" />
+          </svg>
+          Edit
+        </button>
+      </div>
+
       {hasFilters && (
         <button
           onClick={onClear}
