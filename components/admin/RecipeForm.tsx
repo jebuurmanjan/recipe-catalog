@@ -7,6 +7,7 @@ import TagSelect from './TagSelect'
 import CategorySelect from './CategorySelect'
 import ImageUpload from './ImageUpload'
 import ImportFromURL from './ImportFromURL'
+import ImportFromPhoto from './ImportFromPhoto'
 import type { Recipe, Tag, Category, ParsedRecipe } from '@/types'
 
 interface Props {
@@ -149,8 +150,9 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
       </header>
 
       <form id="recipe-form" onSubmit={handleSubmit} className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* Import from URL */}
+        {/* Import from URL or photo */}
         <ImportFromURL onImport={handleImport} />
+        <ImportFromPhoto onImport={handleImport} />
 
         {/* Error */}
         {error && (
