@@ -148,10 +148,10 @@ export default function CatalogPage({
   const activeFiltersCount = selectedTags.length + selectedCategories.length
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-base)' }}>
+    <div className="h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-base)' }}>
       {/* Header */}
       <header
-        className="border-b sticky top-0 z-10 no-print backdrop-blur-sm"
+        className="border-b flex-shrink-0 z-10 no-print backdrop-blur-sm"
         style={{ borderColor: 'var(--border)', backgroundColor: 'color-mix(in srgb, var(--bg-base) 80%, transparent)' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
@@ -176,66 +176,70 @@ export default function CatalogPage({
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 sm:pb-8">
-        {/* Search + filter button (mobile) + view toggle row */}
-        <div className="flex items-center gap-3 mb-8 no-print">
-          <div className="flex-1">
-            <SearchBar value={search} onChange={handleSearch} />
-          </div>
-          {/* Mobile filter button */}
-          <button
-            onClick={() => setFilterModalOpen(true)}
-            className="lg:hidden btn-secondary flex items-center gap-1.5 relative"
-            aria-label="Open filters"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-              <path d="M1 3h12M3 7h8M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            Filters
-            {activeFiltersCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-terracotta text-white text-[10px] font-bold flex items-center justify-center">
-                {activeFiltersCount}
-              </span>
-            )}
-          </button>
-          <ViewToggle view={view} onChange={setView} />
-        </div>
-
-        <div className="flex gap-8 items-start">
-          {/* Sidebar */}
-          <div className="hidden lg:block w-52 flex-shrink-0 no-print sticky top-[65px] max-h-[calc(100vh-65px)] overflow-y-auto">
-            <FilterSidebar
-              tags={tagList}
-              categories={categoryList}
-              selectedTags={selectedTags}
-              selectedCategories={selectedCategories}
-              showConcepts={showConcepts}
-              onTagToggle={handleTagToggle}
-              onCategoryToggle={handleCategoryToggle}
-              onClear={handleClear}
-              onEditLabels={() => setLabelsModalOpen(true)}
-              onShowConceptsToggle={handleShowConceptsToggle}
-            />
+      {/* Below-header area — flex column filling remaining viewport height */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 flex flex-col min-h-0">
+          {/* Search + filter button (mobile) + view toggle row */}
+          <div className="flex items-center gap-3 pt-8 pb-0 flex-shrink-0 no-print">
+            <div className="flex-1">
+              <SearchBar value={search} onChange={handleSearch} />
+            </div>
+            {/* Mobile filter button */}
+            <button
+              onClick={() => setFilterModalOpen(true)}
+              className="lg:hidden btn-secondary flex items-center gap-1.5 relative"
+              aria-label="Open filters"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path d="M1 3h12M3 7h8M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              Filters
+              {activeFiltersCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-terracotta text-white text-[10px] font-bold flex items-center justify-center">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+            <ViewToggle view={view} onChange={setView} />
           </div>
 
-          {/* Main content */}
-          <div className="flex-1 min-w-0">
-            {/* Result count */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                {loading
-                  ? t('loading')
-                  : t('recipeCount', { n: recipes.length })}
-              </p>
+          {/* Two-column area — each column scrolls independently */}
+          <div className="flex gap-8 flex-1 min-h-0 pt-8">
+            {/* Sidebar — independently scrollable */}
+            <div className="hidden lg:block w-52 flex-shrink-0 overflow-y-auto no-print pb-8">
+              <FilterSidebar
+                tags={tagList}
+                categories={categoryList}
+                selectedTags={selectedTags}
+                selectedCategories={selectedCategories}
+                showConcepts={showConcepts}
+                onTagToggle={handleTagToggle}
+                onCategoryToggle={handleCategoryToggle}
+                onClear={handleClear}
+                onEditLabels={() => setLabelsModalOpen(true)}
+                onShowConceptsToggle={handleShowConceptsToggle}
+              />
             </div>
 
-            {/* Recipe grid/list */}
-            <div className={`transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-              {view === 'grid' ? (
-                <RecipeGrid recipes={recipes} />
-              ) : (
-                <RecipeList recipes={recipes} />
-              )}
+            {/* Main content — independently scrollable */}
+            <div className="flex-1 min-w-0 overflow-y-auto pb-24 sm:pb-8">
+              {/* Result count */}
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  {loading
+                    ? t('loading')
+                    : t('recipeCount', { n: recipes.length })}
+                </p>
+              </div>
+
+              {/* Recipe grid/list */}
+              <div className={`transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                {view === 'grid' ? (
+                  <RecipeGrid recipes={recipes} />
+                ) : (
+                  <RecipeList recipes={recipes} />
+                )}
+              </div>
             </div>
           </div>
         </div>
