@@ -1,11 +1,13 @@
 import RecipeCard from './RecipeCard'
 import type { RecipeCard as RecipeCardType } from '@/types'
+import type { ContextAction } from '@/components/ui/RecipeContextMenu'
 
 interface Props {
   recipes: RecipeCardType[]
+  getContextActions?: (recipe: RecipeCardType) => ContextAction[]
 }
 
-export default function RecipeList({ recipes }: Props) {
+export default function RecipeList({ recipes, getContextActions }: Props) {
   if (recipes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -24,7 +26,12 @@ export default function RecipeList({ recipes }: Props) {
   return (
     <div className="flex flex-col gap-3">
       {recipes.map((r) => (
-        <RecipeCard key={r.id} recipe={r} view="list" />
+        <RecipeCard
+          key={r.id}
+          recipe={r}
+          view="list"
+          contextActions={getContextActions?.(r)}
+        />
       ))}
     </div>
   )

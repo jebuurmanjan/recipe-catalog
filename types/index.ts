@@ -43,6 +43,13 @@ export interface ParsedRecipe {
   source_url?: string
 }
 
+export interface Collection {
+  id: string
+  name: string
+  created_at: string
+  recipe_count?: number
+}
+
 /** Catalog recipe card (subset of Recipe) */
 export interface RecipeCard {
   id: string

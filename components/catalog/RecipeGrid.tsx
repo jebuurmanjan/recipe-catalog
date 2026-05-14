@@ -1,11 +1,13 @@
 import RecipeCard from './RecipeCard'
 import type { RecipeCard as RecipeCardType } from '@/types'
+import type { ContextAction } from '@/components/ui/RecipeContextMenu'
 
 interface Props {
   recipes: RecipeCardType[]
+  getContextActions?: (recipe: RecipeCardType) => ContextAction[]
 }
 
-export default function RecipeGrid({ recipes }: Props) {
+export default function RecipeGrid({ recipes, getContextActions }: Props) {
   if (recipes.length === 0) {
     return <EmptyState />
   }
@@ -13,7 +15,12 @@ export default function RecipeGrid({ recipes }: Props) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
       {recipes.map((r) => (
-        <RecipeCard key={r.id} recipe={r} view="grid" />
+        <RecipeCard
+          key={r.id}
+          recipe={r}
+          view="grid"
+          contextActions={getContextActions?.(r)}
+        />
       ))}
     </div>
   )
