@@ -43,7 +43,7 @@ export default function RecipeContextMenu({ actions, className }: Props) {
 
       {open && (
         <div className="absolute right-0 top-full mt-1 z-30 min-w-[168px] rounded-xl border shadow-lg py-1"
-          style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+          style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}
         >
           {actions.map((action) => (
             <button
