@@ -201,9 +201,9 @@ export default function CatalogPage({
           <ViewToggle view={view} onChange={setView} />
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex gap-8 items-start">
           {/* Sidebar */}
-          <div className="hidden lg:block w-52 flex-shrink-0 no-print">
+          <div className="hidden lg:block w-52 flex-shrink-0 no-print sticky top-[65px] max-h-[calc(100vh-65px)] overflow-y-auto">
             <FilterSidebar
               tags={tagList}
               categories={categoryList}
