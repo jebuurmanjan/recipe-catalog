@@ -30,11 +30,11 @@ export default function RecipeContextMenu({ actions, className }: Props) {
       <button
         type="button"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen((v) => !v) }}
-        className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-2 transition-colors"
+        className="p-1.5 rounded-lg text-white hover:text-white/80 transition-colors"
         aria-label="More options"
         aria-expanded={open}
       >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden>
+        <svg width="18" height="18" viewBox="0 0 14 14" fill="currentColor" aria-hidden>
           <circle cx="7" cy="2" r="1.25" />
           <circle cx="7" cy="7" r="1.25" />
           <circle cx="7" cy="12" r="1.25" />
