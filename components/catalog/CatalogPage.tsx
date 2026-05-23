@@ -1,5 +1,6 @@
 'use client'
 import { useState, useCallback, useTransition, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import SearchBar from './SearchBar'
 import FilterSidebar from './FilterSidebar'
@@ -23,6 +24,7 @@ interface Props {
   initialSearch: string
   initialTags: string[]
   initialCategories: string[]
+  userEmail: string
 }
 
 function GearIcon() {
@@ -42,6 +44,7 @@ export default function CatalogPage({
   initialSearch,
   initialTags,
   initialCategories,
+  userEmail,
 }: Props) {
   const { t } = useLanguage()
 
@@ -80,6 +83,12 @@ export default function CatalogPage({
 
   const router = useRouter()
   const pathname = usePathname()
+
+  async function handleSignOut() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    window.location.href = '/login'
+  }
 
   // ── Load collections on mount ──────────────────────────────────────────────
   useEffect(() => {
@@ -360,6 +369,19 @@ export default function CatalogPage({
             >
               <GearIcon />
             </button>
+            {/* User menu */}
+            <div className="hidden sm:flex items-center gap-2 pl-2 border-l" style={{ borderColor: 'var(--border)' }}>
+              <span className="text-xs max-w-[120px] truncate" style={{ color: 'var(--text-muted)' }} title={userEmail}>
+                {userEmail}
+              </span>
+              <button
+                onClick={handleSignOut}
+                className="text-xs px-2.5 py-1.5 rounded-lg border transition-colors hover:text-red-600 hover:border-red-200"
+                style={{ borderColor: 'var(--border)', color: 'var(--text-muted)' }}
+              >
+                Sign out
+              </button>
+            </div>
           </div>
         </div>
       </header>

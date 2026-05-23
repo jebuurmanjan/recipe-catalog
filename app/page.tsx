@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { createServiceClient } from '@/lib/supabase/service'
+import { createClient } from '@/lib/supabase/server'
 import CatalogPage from '@/components/catalog/CatalogPage'
 
 interface PageProps {
@@ -16,22 +17,28 @@ async function CatalogData({ searchParams }: PageProps) {
   const tagIds = [params.tag ?? []].flat().filter(Boolean)
   const catIds = [params.category ?? []].flat().filter(Boolean)
 
+  // Get logged-in user (middleware guarantees one exists)
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id ?? ''
+  const userEmail = user?.email ?? ''
+
   try {
     const db = createServiceClient()
 
     const [categoriesResult, tagsResult] = await Promise.all([
       db.from('categories').select('*').order('type').order('name'),
-      db.from('tags').select('*').order('name'),
+      db.from('tags').select('*').eq('user_id', userId).order('name'),
     ])
 
-    // Server-side pre-filter for initial load
     let recipesResult
     if (q) {
-      recipesResult = await db.rpc('search_recipes', { query: q })
+      recipesResult = await db.rpc('search_recipes', { query: q, p_user_id: userId })
     } else {
       let qb = db
         .from('recipes')
         .select('id, title, slug, description, image_url, is_concept, created_at')
+        .eq('user_id', userId)
         .eq('is_concept', false)
         .order('created_at', { ascending: false })
 
@@ -43,17 +50,10 @@ async function CatalogData({ searchParams }: PageProps) {
       if (catIds.length > 0) {
         const { data } = await db.from('recipe_categories').select('recipe_id').in('category_id', catIds)
         const catSet = new Set((data ?? []).map((r) => r.recipe_id))
-        recipeIds = recipeIds !== null
-          ? recipeIds.filter((id) => catSet.has(id))
-          : [...catSet]
+        recipeIds = recipeIds !== null ? recipeIds.filter((id) => catSet.has(id)) : [...catSet]
       }
       if (recipeIds !== null) {
-        if (recipeIds.length === 0) {
-          recipesResult = { data: [] }
-        } else {
-          qb = qb.in('id', recipeIds)
-          recipesResult = await qb
-        }
+        recipesResult = recipeIds.length === 0 ? { data: [] } : await qb.in('id', recipeIds)
       } else {
         recipesResult = await qb
       }
@@ -67,10 +67,10 @@ async function CatalogData({ searchParams }: PageProps) {
         initialSearch={q}
         initialTags={tagIds}
         initialCategories={catIds}
+        userEmail={userEmail}
       />
     )
   } catch {
-    // Supabase not configured — show the catalog shell with empty state
     return (
       <CatalogPage
         initialRecipes={[]}
@@ -79,6 +79,7 @@ async function CatalogData({ searchParams }: PageProps) {
         initialSearch={q}
         initialTags={tagIds}
         initialCategories={catIds}
+        userEmail={userEmail}
       />
     )
   }

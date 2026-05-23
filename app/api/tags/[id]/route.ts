@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
-// import { getSession } from '@/lib/session' // Uncomment to require admin auth
+import { requireUser } from '@/lib/auth'
 
 type Params = { params: Promise<{ id: string }> }
 
 export async function PUT(req: NextRequest, { params }: Params) {
-  // const session = await getSession()
-  // if (!session.authenticated) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { user, unauthorized } = await requireUser()
+  if (unauthorized) return unauthorized
 
   const { id } = await params
   const { name } = await req.json()
@@ -17,6 +17,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     .from('tags')
     .update({ name: name.trim().toLowerCase() })
     .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single()
 
@@ -25,12 +26,12 @@ export async function PUT(req: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
-  // const session = await getSession()
-  // if (!session.authenticated) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { user, unauthorized } = await requireUser()
+  if (unauthorized) return unauthorized
 
   const { id } = await params
   const db = createServiceClient()
-  const { error } = await db.from('tags').delete().eq('id', id)
+  const { error } = await db.from('tags').delete().eq('id', id).eq('user_id', user.id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })

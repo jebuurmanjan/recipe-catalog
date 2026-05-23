@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
-import { getSession } from '@/lib/session'
+import { requireUser } from '@/lib/auth'
 
 export async function GET() {
+  const { user, unauthorized } = await requireUser()
+  if (unauthorized) return unauthorized
+
   const db = createServiceClient()
   const { data, error } = await db
     .from('tags')
     .select('*')
+    .eq('user_id', user.id)
     .order('name')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -14,20 +18,16 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getSession()
-  if (!session.authenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const { user, unauthorized } = await requireUser()
+  if (unauthorized) return unauthorized
 
   const { name } = await req.json()
-  if (!name?.trim()) {
-    return NextResponse.json({ error: 'Tag name is required' }, { status: 400 })
-  }
+  if (!name?.trim()) return NextResponse.json({ error: 'Tag name is required' }, { status: 400 })
 
   const db = createServiceClient()
   const { data, error } = await db
     .from('tags')
-    .upsert({ name: name.trim().toLowerCase() }, { onConflict: 'name' })
+    .upsert({ name: name.trim().toLowerCase(), user_id: user.id }, { onConflict: 'user_id,name' })
     .select('*')
     .single()
 

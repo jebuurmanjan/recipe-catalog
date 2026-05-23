@@ -51,6 +51,7 @@ export default function CollectionView({
   const [nameValue, setNameValue] = useState(collection.name)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [sharingCopied, setSharingCopied] = useState(false)
   const nameRef = useRef<HTMLInputElement>(null)
 
   // Keep items in sync when recipes prop changes
@@ -76,6 +77,17 @@ export default function CollectionView({
     setSaving(true)
     try { await onRename(nameValue.trim()); setEditing(false) }
     finally { setSaving(false) }
+  }
+
+  async function handleShare() {
+    const res = await fetch(`/api/collections/${collection.id}/share`, { method: 'POST' })
+    const data = await res.json()
+    if (data.share_token) {
+      const url = `${window.location.origin}/share/collection/${data.share_token}`
+      await navigator.clipboard.writeText(url)
+      setSharingCopied(true)
+      setTimeout(() => setSharingCopied(false), 2500)
+    }
   }
 
   async function handleDelete() {
@@ -134,6 +146,28 @@ export default function CollectionView({
             </button>
           </div>
         )}
+
+        <button
+          onClick={handleShare}
+          className="flex-shrink-0 p-1.5 rounded-lg transition-colors"
+          style={{ color: sharingCopied ? 'var(--terracotta)' : 'var(--text-muted)' }}
+          onMouseOver={(e) => { if (!sharingCopied) e.currentTarget.style.color = 'var(--text-primary)' }}
+          onMouseOut={(e) => { if (!sharingCopied) e.currentTarget.style.color = 'var(--text-muted)' }}
+          aria-label={sharingCopied ? 'Link copied!' : 'Share collection'}
+          title={sharingCopied ? 'Link copied!' : 'Share collection'}
+        >
+          {sharingCopied ? (
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M1.5 7l3.5 3.5L12.5 2.5" />
+            </svg>
+          ) : (
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M10 2h4v4" />
+              <path d="M14 2L8 8" />
+              <path d="M7 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9" />
+            </svg>
+          )}
+        </button>
 
         <button
           onClick={handleDelete}

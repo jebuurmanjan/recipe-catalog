@@ -1,27 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
-import { getSession } from '@/lib/session'
+import { requireUser } from '@/lib/auth'
 import { slugify } from '@/lib/utils'
 
 type Params = { params: Promise<{ slug: string }> }
 
-export async function GET(_req: NextRequest, { params }: Params) {
+export async function GET(req: NextRequest, { params }: Params) {
+  const { user, unauthorized } = await requireUser()
+  if (unauthorized) return unauthorized
+
   const { slug } = await params
   const db = createServiceClient()
 
   const { data, error } = await db
     .from('recipes')
-    .select(`
-      *,
-      recipe_tags(tags(id, name)),
-      recipe_categories(categories(id, name, type))
-    `)
+    .select(`*, recipe_tags(tags(id, name)), recipe_categories(categories(id, name, type))`)
     .eq('slug', slug)
+    .eq('user_id', user.id)
     .single()
 
-  if (error || !data) {
-    return NextResponse.json({ error: 'Recipe not found' }, { status: 404 })
-  }
+  if (error || !data) return NextResponse.json({ error: 'Recipe not found' }, { status: 404 })
 
   const recipe = {
     ...data,
@@ -33,10 +31,8 @@ export async function GET(_req: NextRequest, { params }: Params) {
 }
 
 export async function PUT(req: NextRequest, { params }: Params) {
-  const session = await getSession()
-  if (!session.authenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const { user, unauthorized } = await requireUser()
+  if (unauthorized) return unauthorized
 
   const { slug } = await params
   const body = await req.json()
@@ -44,16 +40,10 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
   const db = createServiceClient()
 
-  // Get recipe ID first
   const { data: existing, error: findError } = await db
-    .from('recipes')
-    .select('id')
-    .eq('slug', slug)
-    .single()
+    .from('recipes').select('id').eq('slug', slug).eq('user_id', user.id).single()
 
-  if (findError || !existing) {
-    return NextResponse.json({ error: 'Recipe not found' }, { status: 404 })
-  }
+  if (findError || !existing) return NextResponse.json({ error: 'Recipe not found' }, { status: 404 })
 
   const newSlug = title ? slugify(title) : slug
 
@@ -66,36 +56,27 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Replace tags
   await db.from('recipe_tags').delete().eq('recipe_id', existing.id)
   if (tagIds?.length > 0) {
-    await db
-      .from('recipe_tags')
-      .insert(tagIds.map((tag_id: string) => ({ recipe_id: existing.id, tag_id })))
+    await db.from('recipe_tags').insert(tagIds.map((tag_id: string) => ({ recipe_id: existing.id, tag_id })))
   }
 
-  // Replace categories
   await db.from('recipe_categories').delete().eq('recipe_id', existing.id)
   if (categoryIds?.length > 0) {
-    await db
-      .from('recipe_categories')
-      .insert(categoryIds.map((category_id: string) => ({ recipe_id: existing.id, category_id })))
+    await db.from('recipe_categories').insert(categoryIds.map((category_id: string) => ({ recipe_id: existing.id, category_id })))
   }
 
   return NextResponse.json({ recipe })
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
-  const session = await getSession()
-  if (!session.authenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const { user, unauthorized } = await requireUser()
+  if (unauthorized) return unauthorized
 
   const { slug } = await params
   const db = createServiceClient()
 
-  const { error } = await db.from('recipes').delete().eq('slug', slug)
+  const { error } = await db.from('recipes').delete().eq('slug', slug).eq('user_id', user.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
   return NextResponse.json({ ok: true })
 }

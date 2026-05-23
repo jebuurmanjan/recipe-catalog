@@ -1,14 +1,17 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import BrowseBanner from '@/components/ui/BrowseBanner'
+import ShareButton from './ShareButton'
 import { formatDate } from '@/lib/utils'
 import type { Recipe } from '@/types'
 
 interface Props {
   recipe: Recipe
+  /** When true the recipe is being viewed via a public share link — hide edit link */
+  shared?: boolean
 }
 
-export default function RecipeDetail({ recipe }: Props) {
+export default function RecipeDetail({ recipe, shared }: Props) {
   const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients : []
   const steps = Array.isArray(recipe.steps) ? recipe.steps : []
   return (
@@ -61,7 +64,7 @@ export default function RecipeDetail({ recipe }: Props) {
             <p className="text-lg text-ink-dim leading-relaxed">{recipe.description}</p>
           )}
 
-          <div className="flex items-center gap-4 mt-4 text-sm text-ink-muted">
+          <div className="flex items-center gap-4 mt-4 text-sm text-ink-muted flex-wrap">
             <time dateTime={recipe.created_at}>{formatDate(recipe.created_at)}</time>
             {recipe.source_url && (
               <>
@@ -74,6 +77,12 @@ export default function RecipeDetail({ recipe }: Props) {
                 >
                   Original source ↗
                 </a>
+              </>
+            )}
+            {!shared && (
+              <>
+                <span>·</span>
+                <ShareButton slug={recipe.slug} initialToken={recipe.share_token} />
               </>
             )}
           </div>
@@ -127,14 +136,16 @@ export default function RecipeDetail({ recipe }: Props) {
         </div>
 
         {/* Admin edit link */}
-        <div className="mt-8 text-center no-print">
-          <Link
-            href={`/admin/edit/${recipe.slug}`}
-            className="text-xs text-ink-muted hover:text-terracotta transition-colors"
-          >
-            Edit this recipe
-          </Link>
-        </div>
+        {!shared && (
+          <div className="mt-8 text-center no-print">
+            <Link
+              href={`/admin/edit/${recipe.slug}`}
+              className="text-xs text-ink-muted hover:text-terracotta transition-colors"
+            >
+              Edit this recipe
+            </Link>
+          </div>
+        )}
       </article>
     </div>
   )
