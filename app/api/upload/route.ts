@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from '@/lib/session'
+import { requireUser } from '@/lib/auth'
 import { createServiceClient } from '@/lib/supabase/service'
 
 const BUCKET = 'recipe-images'
@@ -25,10 +25,8 @@ const MIME_MAP: Record<string, { ext: string; contentType: string }> = {
 const FALLBACK_MIME = { ext: 'jpg', contentType: 'image/jpeg' }
 
 export async function POST(req: NextRequest) {
-  const session = await getSession()
-  if (!session.authenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const { unauthorized } = await requireUser()
+  if (unauthorized) return unauthorized
 
   const form = await req.formData()
   const file = form.get('file') as File | null
