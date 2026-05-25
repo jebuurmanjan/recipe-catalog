@@ -3,7 +3,6 @@ import { useState, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-type Method = 'email' | 'phone'
 type Step = 'form' | 'code'
 
 function LoginForm() {
@@ -11,9 +10,8 @@ function LoginForm() {
   const from = searchParams.get('from') ?? '/'
   const router = useRouter()
 
-  const [method, setMethod] = useState<Method>('email')
   const [step, setStep] = useState<Step>('form')
-  const [contact, setContact] = useState('')   // email or phone
+  const [email, setEmail] = useState('')
   const [code, setCode] = useState(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -24,23 +22,16 @@ function LoginForm() {
   // ── Step 1: send OTP ────────────────────────────────────────────────────────
   async function handleSend(e: React.FormEvent) {
     e.preventDefault()
-    if (!contact.trim()) return
+    if (!email.trim()) return
     setLoading(true)
     setError(null)
     try {
-      let err
-      if (method === 'email') {
-        ;({ error: err } = await supabase.auth.signInWithOtp({
-          email: contact.trim(),
-          options: {
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/auth/callback?next=${encodeURIComponent(from)}`,
-          },
-        }))
-      } else {
-        ;({ error: err } = await supabase.auth.signInWithOtp({
-          phone: contact.trim(),
-        }))
-      }
+      const { error: err } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/auth/callback?next=${encodeURIComponent(from)}`,
+        },
+      })
       if (err) setError(err.message)
       else setStep('code')
     } finally {
@@ -56,20 +47,11 @@ function LoginForm() {
     setLoading(true)
     setError(null)
     try {
-      let err
-      if (method === 'email') {
-        ;({ error: err } = await supabase.auth.verifyOtp({
-          email: contact.trim(),
-          token,
-          type: 'email',
-        }))
-      } else {
-        ;({ error: err } = await supabase.auth.verifyOtp({
-          phone: contact.trim(),
-          token,
-          type: 'sms',
-        }))
-      }
+      const { error: err } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token,
+        type: 'email',
+      })
       if (err) {
         setError(err.message)
       } else {
@@ -120,7 +102,7 @@ function LoginForm() {
       <>
         {logo}
         <p className="text-sm text-ink-dim text-center mb-6">
-          We sent a 6-digit code to <strong>{contact}</strong>.
+          We sent a 6-digit code to <strong>{email}</strong>.
           <br />Enter it below to sign in.
         </p>
 
@@ -158,14 +140,14 @@ function LoginForm() {
 
         <div className="flex items-center justify-center gap-4 mt-5 text-xs text-ink-muted">
           <button
-            onClick={() => { setStep('form'); setCode(['', '', '', '', '', '']); setError(null) }}
+            onClick={() => { setStep('form'); setEmail(''); setCode(['', '', '', '', '', '']); setError(null) }}
             className="hover:text-terracotta transition-colors"
           >
-            ← Change {method === 'email' ? 'email' : 'number'}
+            ← Change email
           </button>
           <span>·</span>
           <button
-            onClick={handleSend as unknown as React.MouseEventHandler}
+            onClick={(e) => handleSend(e as unknown as React.FormEvent)}
             className="hover:text-terracotta transition-colors"
           >
             Resend code
@@ -180,59 +162,22 @@ function LoginForm() {
     <>
       {logo}
 
-      {/* Method toggle */}
-      <div className="flex rounded-xl border border-border bg-surface-2 p-1 mb-5">
-        {(['email', 'phone'] as Method[]).map(m => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => { setMethod(m); setContact(''); setError(null) }}
-            className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              method === m
-                ? 'bg-surface text-ink shadow-sm'
-                : 'text-ink-muted hover:text-ink'
-            }`}
-          >
-            {m === 'email' ? 'Email' : 'Phone'}
-          </button>
-        ))}
-      </div>
-
       <form onSubmit={handleSend} className="space-y-4">
-        {method === 'email' ? (
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-ink mb-1.5">
-              Email address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={contact}
-              onChange={e => setContact(e.target.value)}
-              placeholder="you@example.com"
-              required
-              autoFocus
-              className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-terracotta/40 text-ink placeholder:text-ink-muted text-sm"
-            />
-          </div>
-        ) : (
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-ink mb-1.5">
-              Phone number
-            </label>
-            <input
-              id="phone"
-              type="tel"
-              value={contact}
-              onChange={e => setContact(e.target.value)}
-              placeholder="+31 6 12 34 56 78"
-              required
-              autoFocus
-              className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-terracotta/40 text-ink placeholder:text-ink-muted text-sm"
-            />
-            <p className="text-xs text-ink-muted mt-1.5">Include country code, e.g. +31 for NL</p>
-          </div>
-        )}
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-ink mb-1.5">
+            Email address
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            required
+            autoFocus
+            className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-terracotta/40 text-ink placeholder:text-ink-muted text-sm"
+          />
+        </div>
 
         {error && (
           <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950/20 px-3 py-2 rounded-lg">{error}</p>
@@ -240,10 +185,10 @@ function LoginForm() {
 
         <button
           type="submit"
-          disabled={loading || !contact.trim()}
+          disabled={loading || !email.trim()}
           className="btn-primary w-full py-2.5 text-sm disabled:opacity-50"
         >
-          {loading ? 'Sending…' : `Send code via ${method === 'email' ? 'email' : 'text'}`}
+          {loading ? 'Sending…' : 'Send code via email'}
         </button>
       </form>
 
