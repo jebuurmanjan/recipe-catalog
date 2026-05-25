@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { getSession } from '@/lib/session'
+import { requireUser } from '@/lib/auth'
 import type { ParsedRecipe } from '@/types'
 
 const client = new Anthropic()
@@ -27,10 +27,8 @@ Rules:
 - If this image does not appear to contain a recipe, return exactly: {"error": "No recipe found in this image"}`
 
 export async function POST(req: NextRequest) {
-  const session = await getSession()
-  if (!session.authenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const { unauthorized } = await requireUser()
+  if (unauthorized) return unauthorized
 
   let image: string
   let mimeType: string
