@@ -16,7 +16,7 @@ export default function LandingFooter() {
             Dishcovery
           </p>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            Collect. Cook. Share. &copy; {year}
+            Collect. Cook. Share. Cooked with ❤️ by Jan &copy; {year}
           </p>
         </div>
 
