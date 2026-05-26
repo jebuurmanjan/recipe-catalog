@@ -80,14 +80,8 @@ export default function USPSection() {
                 </p>
                 <a
                   href="/login"
-                  className="inline-flex items-center gap-1.5 text-sm font-medium px-5 py-2.5 rounded-full border transition-colors self-start"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium px-5 py-2.5 rounded-full border transition-colors self-start hover:bg-surface-2"
                   style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-                  onMouseOver={e => {
-                    e.currentTarget.style.backgroundColor = 'var(--surface-2)'
-                  }}
-                  onMouseOut={e => {
-                    e.currentTarget.style.backgroundColor = 'transparent'
-                  }}
                 >
                   {usp.cta}
                 </a>
