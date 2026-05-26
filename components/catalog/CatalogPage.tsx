@@ -352,9 +352,17 @@ export default function CatalogPage({
         style={{ borderColor: 'var(--border)', backgroundColor: 'color-mix(in srgb, var(--bg-base) 80%, transparent)' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
-          <h1 className="font-serif text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-            {t('recipeCatalog')}
-          </h1>
+          <div className="flex items-center gap-3">
+            <a href="/" className="text-xs hidden sm:inline-flex items-center gap-1 transition-colors" style={{ color: 'var(--text-muted)' }}
+              onMouseOver={e => (e.currentTarget.style.color = 'var(--accent)')}
+              onMouseOut={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+            >
+              ← Home
+            </a>
+            <h1 className="font-serif text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              {t('recipeCatalog')}
+            </h1>
+          </div>
           <div className="flex items-center gap-3">
             <a href="/admin/import" className="btn-secondary text-sm hidden sm:inline-flex">
               {t('importPhotos')}

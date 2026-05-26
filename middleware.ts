@@ -31,22 +31,17 @@ export async function middleware(req: NextRequest) {
 
   // Public routes — no auth required
   const isPublic =
+    pathname === '/' ||
     pathname.startsWith('/login') ||
     pathname.startsWith('/auth/') ||
     pathname.startsWith('/share/')
 
-  if (isPublic) {
-    // Redirect authenticated users away from login page
-    if (user && pathname.startsWith('/login')) {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
-    return res
-  }
+  if (isPublic) return res
 
   // Everything else requires a logged-in user
   if (!user) {
     const loginUrl = new URL('/login', req.url)
-    if (pathname !== '/') loginUrl.searchParams.set('from', pathname)
+    loginUrl.searchParams.set('from', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
