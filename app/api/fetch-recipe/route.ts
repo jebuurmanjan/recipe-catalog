@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     const resp = await fetch(url, {
       headers: {
         'User-Agent':
-          'Mozilla/5.0 (compatible; DishcoveryBot/1.0; +https://dishcovery.vercel.app)',
+          'Mozilla/5.0 (compatible; RecipeCatalogBot/1.0; +https://recipe-catalog.vercel.app)',
         Accept: 'text/html,application/xhtml+xml',
       },
       signal: AbortSignal.timeout(12_000),
