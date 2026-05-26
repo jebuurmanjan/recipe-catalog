@@ -9,6 +9,8 @@ export interface Recipe {
   source_url: string | null
   is_concept: boolean
   servings: number | null
+  serves: string | null
+  prep_time: string | null
   share_token?: string | null
   created_at: string
   updated_at: string

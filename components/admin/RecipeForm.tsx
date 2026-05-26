@@ -32,6 +32,8 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
   )
   const [allTags, setAllTags] = useState<Tag[]>(allTagsProp)
   const [servings, setServings] = useState<number>(recipe?.servings ?? 2)
+  const [serves, setServes] = useState(recipe?.serves ?? '')
+  const [prepTime, setPrepTime] = useState(recipe?.prep_time ?? '')
   const [isConcept, setIsConcept] = useState(recipe?.is_concept ?? false)
 
   const [saving, setSaving] = useState(false)
@@ -81,6 +83,8 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
         categoryIds: selectedCategories,
         is_concept: isConcept,
         servings: servings > 0 ? servings : null,
+        serves: serves.trim() || null,
+        prep_time: prepTime.trim() || null,
       }
 
       const url = mode === 'edit' ? `/api/recipes/${recipe!.slug}` : '/api/recipes'
@@ -217,6 +221,32 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
             >
               +
             </button>
+          </div>
+        </div>
+
+        {/* Serves & prep time */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="serves" className="label">Serves</label>
+            <input
+              id="serves"
+              type="text"
+              value={serves}
+              onChange={(e) => setServes(e.target.value)}
+              placeholder="e.g. 4 people"
+              className="input-base"
+            />
+          </div>
+          <div>
+            <label htmlFor="prep-time" className="label">Prep time</label>
+            <input
+              id="prep-time"
+              type="text"
+              value={prepTime}
+              onChange={(e) => setPrepTime(e.target.value)}
+              placeholder="e.g. 30 minutes"
+              className="input-base"
+            />
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/service'
-import RecipeForm from '@/components/admin/RecipeForm'
+import AddRecipeWizard from './components/AddRecipeWizard'
 import type { Tag, Category } from '@/types'
 
 export const metadata = { title: 'Add recipe' }
@@ -17,14 +17,8 @@ export default async function AddPage() {
     tags = tagsResult.data ?? []
     categories = categoriesResult.data ?? []
   } catch {
-    // Supabase unavailable — form still renders, tags/categories will be empty
+    // Supabase unavailable — wizard still renders, tags/categories will be empty
   }
 
-  return (
-    <RecipeForm
-      mode="add"
-      tags={tags}
-      categories={categories}
-    />
-  )
+  return <AddRecipeWizard initialTags={tags} categories={categories} />
 }
