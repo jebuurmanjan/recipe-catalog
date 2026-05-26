@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   if (unauthorized) return unauthorized
 
   const body = await req.json()
-  const { title, description, ingredients, steps, image_url, source_url, tagIds, categoryIds, is_concept } = body
+  const { title, description, ingredients, steps, image_url, source_url, tagIds, categoryIds, is_concept, servings } = body
 
   if (!title?.trim()) return NextResponse.json({ error: 'Title is required' }, { status: 400 })
 
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
   let { data: recipe, error } = await db
     .from('recipes')
-    .insert({ title, slug, description, ingredients, steps, image_url, source_url, is_concept: is_concept ?? false, user_id: user.id })
+    .insert({ title, slug, description, ingredients, steps, image_url, source_url, is_concept: is_concept ?? false, servings: servings ?? null, user_id: user.id })
     .select()
     .single()
 
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     slug = `${baseSlug}-${Date.now()}`
     ;({ data: recipe, error } = await db
       .from('recipes')
-      .insert({ title, slug, description, ingredients, steps, image_url, source_url, is_concept: is_concept ?? false, user_id: user.id })
+      .insert({ title, slug, description, ingredients, steps, image_url, source_url, is_concept: is_concept ?? false, servings: servings ?? null, user_id: user.id })
       .select()
       .single())
   }

@@ -36,7 +36,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
   const { slug } = await params
   const body = await req.json()
-  const { title, description, ingredients, steps, image_url, source_url, tagIds, categoryIds, is_concept } = body
+  const { title, description, ingredients, steps, image_url, source_url, tagIds, categoryIds, is_concept, servings } = body
 
   const db = createServiceClient()
 
@@ -49,7 +49,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
   const { data: recipe, error } = await db
     .from('recipes')
-    .update({ title, slug: newSlug, description, ingredients, steps, image_url, source_url, is_concept: is_concept ?? false })
+    .update({ title, slug: newSlug, description, ingredients, steps, image_url, source_url, is_concept: is_concept ?? false, servings: servings ?? null })
     .eq('id', existing.id)
     .select()
     .single()

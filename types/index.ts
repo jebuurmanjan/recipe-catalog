@@ -8,6 +8,7 @@ export interface Recipe {
   image_url: string | null
   source_url: string | null
   is_concept: boolean
+  servings: number | null
   share_token?: string | null
   created_at: string
   updated_at: string

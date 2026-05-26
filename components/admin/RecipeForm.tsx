@@ -31,6 +31,7 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
     recipe?.categories?.map((c) => c.id) ?? []
   )
   const [allTags, setAllTags] = useState<Tag[]>(allTagsProp)
+  const [servings, setServings] = useState<number>(recipe?.servings ?? 2)
   const [isConcept, setIsConcept] = useState(recipe?.is_concept ?? false)
 
   const [saving, setSaving] = useState(false)
@@ -79,6 +80,7 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
         tagIds: selectedTags,
         categoryIds: selectedCategories,
         is_concept: isConcept,
+        servings: servings > 0 ? servings : null,
       }
 
       const url = mode === 'edit' ? `/api/recipes/${recipe!.slug}` : '/api/recipes'
@@ -188,6 +190,34 @@ export default function RecipeForm({ mode, recipe, tags: allTagsProp, categories
             rows={3}
             className="input-base resize-y"
           />
+        </div>
+
+        {/* Servings */}
+        <div>
+          <p className="label">Servings</p>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setServings((v) => Math.max(1, v - 1))}
+              className="w-10 h-10 rounded-full border flex items-center justify-center text-xl transition-colors"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-dim)', backgroundColor: 'var(--surface)' }}
+              aria-label="Decrease servings"
+            >
+              −
+            </button>
+            <span className="w-8 text-center text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+              {servings}
+            </span>
+            <button
+              type="button"
+              onClick={() => setServings((v) => Math.min(99, v + 1))}
+              className="w-10 h-10 rounded-full border flex items-center justify-center text-xl transition-colors"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-dim)', backgroundColor: 'var(--surface)' }}
+              aria-label="Increase servings"
+            >
+              +
+            </button>
+          </div>
         </div>
 
         {/* Photo */}

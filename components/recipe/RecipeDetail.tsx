@@ -66,6 +66,12 @@ export default function RecipeDetail({ recipe, shared }: Props) {
 
           <div className="flex items-center gap-4 mt-4 text-sm text-ink-muted flex-wrap">
             <time dateTime={recipe.created_at}>{formatDate(recipe.created_at)}</time>
+            {recipe.servings && (
+              <>
+                <span>·</span>
+                <span>{recipe.servings} servings</span>
+              </>
+            )}
             {recipe.source_url && (
               <>
                 <span>·</span>
