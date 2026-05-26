@@ -58,9 +58,9 @@ export default function LandingNav({ isLoggedIn }: Props) {
   }
 
   return (
-    <div className="fixed top-5 inset-x-0 z-50 flex justify-center px-4">
+    <div className="fixed top-5 inset-x-0 z-50 flex justify-center px-6">
       <nav
-        className="flex items-center gap-1 px-3 py-2 rounded-full border transition-all duration-300"
+        className="w-full max-w-6xl flex items-center px-6 py-3 rounded-full border transition-all duration-300"
         style={{
           backgroundColor: 'color-mix(in srgb, var(--surface) 92%, transparent)',
           backdropFilter: 'blur(16px)',
@@ -72,19 +72,19 @@ export default function LandingNav({ isLoggedIn }: Props) {
           pointerEvents: visible ? 'auto' : 'none',
         }}
       >
-        {/* Wordmark */}
+        {/* Wordmark — left */}
         <Link
           href="/"
-          className="font-serif text-lg font-bold px-2 py-1"
+          className="font-serif text-lg font-bold mr-auto"
           style={{ color: 'var(--text-primary)' }}
         >
           Dishcovery
         </Link>
 
         {/* Separator */}
-        <div className="w-px h-4 mx-1.5 flex-shrink-0" style={{ backgroundColor: 'var(--border)' }} />
+        <div className="w-px h-4 mx-4 flex-shrink-0" style={{ backgroundColor: 'var(--border)' }} />
 
-        {/* Theme toggle */}
+        {/* Theme toggle — right group */}
         <button
           onClick={toggleTheme}
           className="w-8 h-8 flex items-center justify-center rounded-full transition-colors"
@@ -97,11 +97,11 @@ export default function LandingNav({ isLoggedIn }: Props) {
         </button>
 
         {/* Separator */}
-        <div className="w-px h-4 mx-1.5 flex-shrink-0" style={{ backgroundColor: 'var(--border)' }} />
+        <div className="w-px h-4 mx-4 flex-shrink-0" style={{ backgroundColor: 'var(--border)' }} />
 
         {/* Nav actions */}
         {isLoggedIn ? (
-          <Link href="/catalog" className="btn-primary px-4 py-1.5 text-sm ml-1">
+          <Link href="/catalog" className="btn-primary px-4 py-1.5 text-sm">
             My catalog →
           </Link>
         ) : (
@@ -115,7 +115,7 @@ export default function LandingNav({ isLoggedIn }: Props) {
             >
               Sign in
             </Link>
-            <Link href="/login" className="btn-primary px-4 py-1.5 text-sm ml-1">
+            <Link href="/login" className="btn-primary px-4 py-1.5 text-sm">
               Register for free
             </Link>
           </>
