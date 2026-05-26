@@ -1,34 +1,25 @@
 const USPS = [
   {
-    // TODO: replace icon, title and description
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" />
-        <path d="M12 8v4l3 3" />
-      </svg>
-    ),
+    badge: 'Collect',
+    // TODO: replace title, description, and imageAlt
     title: 'Save in seconds',
     description: 'Paste any URL and Dishcovery extracts the recipe automatically. No copying, no formatting — just saved.',
+    imageAlt: 'Saving a recipe from a website',
+    cta: 'Start collecting',
   },
   {
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M4 6h16M4 10h16M4 14h10M4 18h6" />
-      </svg>
-    ),
+    badge: 'Organise',
     title: 'Organised your way',
     description: 'Tag recipes, group them into collections, and filter by cuisine or occasion. Your catalog, your structure.',
+    imageAlt: 'Recipe collections and tags',
+    cta: 'See how it works',
   },
   {
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-        <polyline points="16 6 12 2 8 6" />
-        <line x1="12" y1="2" x2="12" y2="15" />
-      </svg>
-    ),
+    badge: 'Share',
     title: 'Share with anyone',
     description: 'Generate a public link for any recipe or collection and share it with friends and family — no account needed to view.',
+    imageAlt: 'Sharing a recipe link',
+    cta: 'Try sharing',
   },
 ]
 
@@ -37,7 +28,7 @@ export default function USPSection() {
     <section className="border-t" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
       <div className="max-w-6xl mx-auto px-6 py-20 md:py-28">
 
-        <div className="text-center mb-16">
+        <div className="text-center mb-14">
           {/* TODO: replace section label and heading */}
           <p className="text-sm font-medium tracking-widest uppercase mb-3" style={{ color: 'var(--accent)' }}>
             Why Dishcovery
@@ -47,21 +38,60 @@ export default function USPSection() {
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-10 md:gap-16">
+        <div className="grid md:grid-cols-3 gap-6">
           {USPS.map((usp) => (
-            <div key={usp.title}>
+            <div
+              key={usp.badge}
+              className="flex flex-col rounded-2xl overflow-hidden"
+              style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}
+            >
+              {/* Image area */}
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
-                style={{ backgroundColor: 'var(--accent)', color: '#fff' }}
+                className="aspect-[4/3] flex items-center justify-center"
+                style={{ backgroundColor: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}
               >
-                {usp.icon}
+                {/* TODO: Replace with <Image src="..." alt={usp.imageAlt} fill className="object-cover" /> */}
+                <div className="text-center px-6" style={{ color: 'var(--text-muted)' }}>
+                  <svg className="w-8 h-8 mx-auto mb-2 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="M21 15l-5-5L5 21" />
+                  </svg>
+                  <p className="text-xs">{usp.imageAlt}</p>
+                </div>
               </div>
-              <h3 className="font-serif text-xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
-                {usp.title}
-              </h3>
-              <p className="leading-relaxed text-sm" style={{ color: 'var(--text-dim)' }}>
-                {usp.description}
-              </p>
+
+              {/* Text + CTA */}
+              <div className="flex flex-col flex-1 p-7">
+                <p
+                  className="text-xs font-semibold tracking-widest uppercase mb-3"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  {usp.badge}
+                </p>
+                <h3
+                  className="font-serif text-xl md:text-2xl font-bold mb-3 leading-snug"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {usp.title}
+                </h3>
+                <p className="text-sm leading-relaxed mb-6 flex-1" style={{ color: 'var(--text-dim)' }}>
+                  {usp.description}
+                </p>
+                <a
+                  href="/login"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium px-5 py-2.5 rounded-full border transition-colors self-start"
+                  style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.backgroundColor = 'var(--surface-2)'
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
+                >
+                  {usp.cta}
+                </a>
+              </div>
             </div>
           ))}
         </div>
