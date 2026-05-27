@@ -10,7 +10,7 @@ interface Props {
   description: string
   imageUrl: string
   sourceUrl: string
-  serves: string
+  servings: number
   prepTime: string
   selectedCategories: string[]
   selectedTags: string[]
@@ -21,7 +21,7 @@ interface Props {
     description?: string
     imageUrl?: string
     sourceUrl?: string
-    serves?: string
+    servings?: number
     prepTime?: string
     selectedCategories?: string[]
     selectedTags?: string[]
@@ -36,7 +36,7 @@ export default function Step2({
   description,
   imageUrl,
   sourceUrl,
-  serves,
+  servings,
   prepTime,
   selectedCategories,
   selectedTags,
@@ -118,20 +118,33 @@ export default function Step2({
         />
       </div>
 
-      {/* Serves & prep time */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Servings & prep time */}
+      <div className="grid grid-cols-2 gap-6">
         <div>
-          <label htmlFor="wiz-serves" className="label">
-            Serves
-          </label>
-          <input
-            id="wiz-serves"
-            type="text"
-            value={serves}
-            onChange={(e) => onUpdate({ serves: e.target.value })}
-            placeholder="e.g. 4 people"
-            className="input-base"
-          />
+          <p className="label">Servings</p>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => onUpdate({ servings: Math.max(1, servings - 1) })}
+              className="w-10 h-10 rounded-full border flex items-center justify-center text-xl transition-colors"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-dim)', backgroundColor: 'var(--surface)' }}
+              aria-label="Decrease servings"
+            >
+              −
+            </button>
+            <span className="w-8 text-center text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+              {servings}
+            </span>
+            <button
+              type="button"
+              onClick={() => onUpdate({ servings: Math.min(99, servings + 1) })}
+              className="w-10 h-10 rounded-full border flex items-center justify-center text-xl transition-colors"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-dim)', backgroundColor: 'var(--surface)' }}
+              aria-label="Increase servings"
+            >
+              +
+            </button>
+          </div>
         </div>
         <div>
           <label htmlFor="wiz-prep" className="label">

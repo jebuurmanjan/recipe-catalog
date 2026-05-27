@@ -17,7 +17,7 @@ interface FormState {
   steps: string[]
   imageUrl: string
   sourceUrl: string
-  serves: string
+  servings: number
   prepTime: string
   isConcept: boolean
   selectedTags: string[]
@@ -31,7 +31,7 @@ const DEFAULT_FORM: FormState = {
   steps: [''],
   imageUrl: '',
   sourceUrl: '',
-  serves: '',
+  servings: 2,
   prepTime: '',
   isConcept: false,
   selectedTags: [],
@@ -149,7 +149,7 @@ export default function AddRecipeWizard({ initialTags, categories }: Props) {
         steps: form.steps.filter((s) => s.trim()),
         image_url: form.imageUrl || null,
         source_url: form.sourceUrl.trim() || null,
-        serves: form.serves.trim() || null,
+        servings: form.servings > 0 ? form.servings : null,
         prep_time: form.prepTime.trim() || null,
         tagIds: form.selectedTags,
         categoryIds: form.selectedCategories,
@@ -201,7 +201,7 @@ export default function AddRecipeWizard({ initialTags, categories }: Props) {
       <nav className="border-b border-border">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link href="/" className="text-sm text-ink-dim hover:text-terracotta transition-colors">
+            <Link href="/catalog" className="text-sm text-ink-dim hover:text-terracotta transition-colors">
               ← Catalog
             </Link>
             <span className="text-border">·</span>
@@ -230,7 +230,7 @@ export default function AddRecipeWizard({ initialTags, categories }: Props) {
             description={form.description}
             imageUrl={form.imageUrl}
             sourceUrl={form.sourceUrl}
-            serves={form.serves}
+            servings={form.servings}
             prepTime={form.prepTime}
             selectedCategories={form.selectedCategories}
             selectedTags={form.selectedTags}
