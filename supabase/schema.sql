@@ -71,8 +71,10 @@ create index if not exists categories_type_idx         on categories(type);
 
 -- ── updated_at trigger ───────────────────────────────────────
 
-create or replace function set_updated_at()
-returns trigger language plpgsql as $$
+create or replace function public.set_updated_at()
+returns trigger language plpgsql
+set search_path = ''
+as $$
 begin
   new.updated_at = now();
   return new;
@@ -86,11 +88,13 @@ create trigger recipes_updated_at
 
 -- ── Full-text search RPC ─────────────────────────────────────
 
-create or replace function search_recipes(query text)
-returns setof recipes
-language sql stable as $$
+create or replace function public.search_recipes(query text)
+returns setof public.recipes
+language sql stable
+set search_path = ''
+as $$
   select *
-  from recipes
+  from public.recipes
   where search_vector @@ websearch_to_tsquery('english', query)
   order by ts_rank(search_vector, websearch_to_tsquery('english', query)) desc;
 $$;
