@@ -121,6 +121,25 @@ create policy "Public read recipe_tags"
 create policy "Public read recipe_categories"
   on recipe_categories for select using (true);
 
+alter table collections        enable row level security;
+alter table collection_recipes enable row level security;
+
+-- Collections are private — only the owner can read via anon key.
+-- (Service role bypasses RLS automatically for share pages & API routes.)
+create policy "Owner reads own collections"
+  on collections for select
+  using (auth.uid() = user_id);
+
+create policy "Owner reads own collection_recipes"
+  on collection_recipes for select
+  using (
+    exists (
+      select 1 from collections
+      where collections.id = collection_recipes.collection_id
+        and collections.user_id = auth.uid()
+    )
+  );
+
 -- ── Seed data: category labels ───────────────────────────────
 
 insert into categories (name, type) values
