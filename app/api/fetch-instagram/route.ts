@@ -9,14 +9,14 @@ const IG_UA =
 
 const client = new Anthropic()
 
-export function extractShortcode(url: string): string | null {
+function extractShortcode(url: string): string | null {
   const match = url.match(
     /instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(p|reels|reel|stories)\/([A-Za-z0-9-_]+)/
   )
   return match?.[2] ?? null
 }
 
-export async function fetchIgPost(shortcode: string): Promise<Record<string, unknown> | null> {
+async function fetchIgPost(shortcode: string): Promise<Record<string, unknown> | null> {
   const params = new URLSearchParams({
     variables: JSON.stringify({ shortcode }),
     doc_id: '10015901848480474',
