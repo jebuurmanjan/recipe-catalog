@@ -17,28 +17,65 @@ function extractShortcode(url: string): string | null {
 }
 
 async function fetchIgPost(shortcode: string): Promise<Record<string, unknown> | null> {
-  const params = new URLSearchParams({
+  const body = new URLSearchParams({
     variables: JSON.stringify({ shortcode }),
     doc_id: '10015901848480474',
     lsd: 'AVqbxe3J_YA',
   })
 
-  const res = await fetch(`https://www.instagram.com/api/graphql?${params}`, {
-    method: 'POST',
-    headers: {
-      'User-Agent': IG_UA,
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-IG-App-ID': IG_APP_ID,
-      'X-FB-LSD': 'AVqbxe3J_YA',
-      'X-ASBD-ID': '129477',
-      'Sec-Fetch-Site': 'same-origin',
-    },
-    signal: AbortSignal.timeout(15_000),
-  })
+  try {
+    const res = await fetch('https://www.instagram.com/api/graphql', {
+      method: 'POST',
+      headers: {
+        'User-Agent': IG_UA,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-IG-App-ID': IG_APP_ID,
+        'X-FB-LSD': 'AVqbxe3J_YA',
+        'X-ASBD-ID': '129477',
+        'Sec-Fetch-Site': 'same-origin',
+        'Origin': 'https://www.instagram.com',
+        'Referer': 'https://www.instagram.com/',
+      },
+      body: body.toString(),
+      signal: AbortSignal.timeout(15_000),
+    })
 
-  if (!res.ok) return null
-  const json = (await res.json()) as { data?: { xdt_shortcode_media?: Record<string, unknown> } }
-  return json?.data?.xdt_shortcode_media ?? null
+    console.log('[fetch-instagram] graphql status:', res.status)
+    if (res.ok) {
+      const json = (await res.json()) as { data?: { xdt_shortcode_media?: Record<string, unknown> } }
+      const media = json?.data?.xdt_shortcode_media ?? null
+      if (media) return media
+    }
+  } catch (err) {
+    console.error('[fetch-instagram] graphql error:', err)
+  }
+
+  // Fallback: oEmbed API (public, no auth, gives caption as title)
+  try {
+    const oembedUrl = `https://www.instagram.com/api/v1/oembed/?url=https://www.instagram.com/p/${shortcode}/&hidecaption=0`
+    const res = await fetch(oembedUrl, {
+      headers: { 'User-Agent': IG_UA },
+      signal: AbortSignal.timeout(10_000),
+    })
+    console.log('[fetch-instagram] oembed status:', res.status)
+    if (res.ok) {
+      const json = (await res.json()) as {
+        title?: string
+        thumbnail_url?: string
+        author_name?: string
+      }
+      if (json) {
+        return {
+          edge_media_to_caption: { edges: [{ node: { text: json.title ?? '' } }] },
+          display_url: json.thumbnail_url ?? null,
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[fetch-instagram] oembed error:', err)
+  }
+
+  return null
 }
 
 async function fetchImageBase64(
