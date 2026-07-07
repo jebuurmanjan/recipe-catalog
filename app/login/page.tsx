@@ -12,7 +12,7 @@ function LoginForm() {
 
   const [step, setStep] = useState<Step>('form')
   const [email, setEmail] = useState('')
-  const [code, setCode] = useState(['', '', '', '', '', ''])
+  const [code, setCode] = useState(['', '', '', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const codeRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -43,7 +43,7 @@ function LoginForm() {
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault()
     const token = code.join('')
-    if (token.length < 6) return
+    if (token.length < 8) return
     setLoading(true)
     setError(null)
     try {
@@ -68,7 +68,7 @@ function LoginForm() {
     const next = [...code]
     next[i] = digit
     setCode(next)
-    if (digit && i < 5) codeRefs.current[i + 1]?.focus()
+    if (digit && i < 7) codeRefs.current[i + 1]?.focus()
   }
 
   function handleCodeKeyDown(i: number, e: React.KeyboardEvent<HTMLInputElement>) {
@@ -79,9 +79,9 @@ function LoginForm() {
 
   function handleCodePaste(e: React.ClipboardEvent) {
     const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
-    if (pasted.length === 6) {
+    if (pasted.length === 8) {
       setCode(pasted.split(''))
-      codeRefs.current[5]?.focus()
+      codeRefs.current[7]?.focus()
     }
   }
 
@@ -97,7 +97,7 @@ function LoginForm() {
 
   // ── Code entry screen ───────────────────────────────────────────────────────
   if (step === 'code') {
-    const codeComplete = code.every(d => d !== '')
+    const codeComplete = code.every((d) => d !== '')
     return (
       <>
         {logo}
@@ -120,7 +120,7 @@ function LoginForm() {
                 autoFocus={i === 0}
                 onChange={e => handleCodeChange(i, e.target.value)}
                 onKeyDown={e => handleCodeKeyDown(i, e)}
-                className="w-11 h-14 text-center text-xl font-semibold rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-terracotta/40 text-ink"
+                className="w-9 h-12 text-center text-lg font-semibold rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-terracotta/40 text-ink"
               />
             ))}
           </div>
@@ -140,7 +140,7 @@ function LoginForm() {
 
         <div className="flex items-center justify-center gap-4 mt-5 text-xs text-ink-muted">
           <button
-            onClick={() => { setStep('form'); setEmail(''); setCode(['', '', '', '', '', '']); setError(null) }}
+            onClick={() => { setStep('form'); setEmail(''); setCode(['', '', '', '', '', '', '', '']); setError(null) }}
             className="hover:text-terracotta transition-colors"
           >
             ← Change email
