@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { load } from 'cheerio'
 import type { ParsedRecipe } from '@/types'
 
-const BLOCKED_DOMAINS = ['instagram.com', 'www.instagram.com']
+const BLOCKED_DOMAINS: string[] = []
 
 export async function POST(req: NextRequest) {
   const { url } = await req.json()

@@ -173,6 +173,31 @@ insert into categories (name, type) values
   ('Involved',         'effort')
 on conflict do nothing;
 
+-- ── Instagram integration ────────────────────────────────────
+-- Stores encrypted session cookies for saved-folder sync.
+-- All access is owner-only; service role bypasses RLS for API routes.
+
+create table if not exists instagram_settings (
+  id          uuid        primary key default gen_random_uuid(),
+  user_id     uuid        not null references auth.users(id) on delete cascade,
+  session_id  text        not null,
+  ds_user_id  text        not null,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  unique (user_id)
+);
+
+alter table instagram_settings enable row level security;
+
+create policy "Owner only"
+  on instagram_settings for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create trigger instagram_settings_updated_at
+  before update on instagram_settings
+  for each row execute function public.set_updated_at();
+
 -- ── Supabase Storage ─────────────────────────────────────────
 -- Create the bucket via dashboard (Storage › New bucket) or CLI:
 --

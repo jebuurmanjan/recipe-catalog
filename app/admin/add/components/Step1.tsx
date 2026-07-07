@@ -51,9 +51,36 @@ export default function Step1({ onImport, onManual }: Props) {
   const [urlInput, setUrlInput] = useState('')
   const [urlLoading, setUrlLoading] = useState(false)
   const [urlError, setUrlError] = useState('')
+  const [igInput, setIgInput] = useState('')
+  const [igLoading, setIgLoading] = useState(false)
+  const [igError, setIgError] = useState('')
   const [photoLoading, setPhotoLoading] = useState(false)
   const [photoError, setPhotoError] = useState('')
   const photoRef = useRef<HTMLInputElement>(null)
+
+  async function handleIgImport() {
+    const url = igInput.trim()
+    if (!url) return
+    setIgLoading(true)
+    setIgError('')
+    try {
+      const res = await fetch('/api/fetch-instagram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.parsed) {
+        setIgError(data.error ?? 'Could not extract a recipe from this post.')
+        return
+      }
+      onImport(data.parsed)
+    } catch {
+      setIgError('Network error — please check your connection.')
+    } finally {
+      setIgLoading(false)
+    }
+  }
 
   async function handleUrlImport() {
     const url = urlInput.trim()
@@ -210,6 +237,52 @@ export default function Step1({ onImport, onManual }: Props) {
           {photoError && (
             <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
               {photoError}
+            </p>
+          )}
+        </div>
+
+        {/* Instagram */}
+        <div className="rounded-2xl border border-border bg-surface p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center flex-shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-pink-500">
+                <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.75" />
+                <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.75" />
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+              </svg>
+            </span>
+            <div>
+              <p className="font-semibold text-ink">Import from Instagram</p>
+              <p className="text-xs text-ink-muted">Paste a post or reel link — AI extracts the recipe</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={igInput}
+              onChange={(e) => setIgInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleIgImport()}
+              placeholder="https://www.instagram.com/p/…"
+              className="input-base flex-1"
+            />
+            <button
+              type="button"
+              onClick={handleIgImport}
+              disabled={!igInput.trim() || igLoading}
+              className="btn-primary whitespace-nowrap disabled:opacity-50"
+            >
+              {igLoading ? (
+                <span className="flex items-center gap-2">
+                  <Spinner /> Extracting…
+                </span>
+              ) : (
+                'Import'
+              )}
+            </button>
+          </div>
+          {igError && (
+            <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {igError}
             </p>
           )}
         </div>
