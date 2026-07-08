@@ -27,6 +27,14 @@ interface IgMediaItem {
   product_type?: string
 }
 
+interface IgCollectionItem {
+  media?: IgMediaItem
+  // Some endpoints return the media fields directly at the top level
+  code?: string
+  caption?: { text?: string }
+  image_versions2?: { candidates?: { url: string; width: number; height: number }[] }
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -72,22 +80,30 @@ export async function GET(
     if (!res.ok) break
 
     const json = (await res.json()) as {
-      items?: IgMediaItem[]
+      items?: IgCollectionItem[]
       more_available?: boolean
       next_max_id?: string
     }
 
+    console.log('[instagram/posts] item count:', json.items?.length ?? 0)
+    if (json.items?.length) {
+      console.log('[instagram/posts] first item keys:', Object.keys(json.items[0]))
+    }
+
     for (const item of json.items ?? []) {
-      if (!item.code) continue
+      // Saved collection feed wraps each post in a `media` object
+      const media: IgMediaItem = (item.media ?? item) as IgMediaItem
+      if (!media.code) continue
+
       const thumb =
-        item.image_versions2?.candidates?.[0]?.url ??
-        item.carousel_media?.[0]?.image_versions2?.candidates?.[0]?.url ??
-        item.thumbnail_url ??
+        media.image_versions2?.candidates?.[0]?.url ??
+        media.carousel_media?.[0]?.image_versions2?.candidates?.[0]?.url ??
+        media.thumbnail_url ??
         null
 
       posts.push({
-        shortcode: item.code,
-        caption: item.caption?.text ?? '',
+        shortcode: media.code,
+        caption: media.caption?.text ?? '',
         thumbnailUrl: thumb,
       })
     }
