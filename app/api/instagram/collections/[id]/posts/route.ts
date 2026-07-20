@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireUser } from '@/lib/auth'
 import { createServiceClient } from '@/lib/supabase/service'
 
+export const maxDuration = 30
+
 const IG_APP_ID = process.env.INSTAGRAM_X_IG_APP_ID ?? '936619743392459'
 const IG_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
@@ -77,17 +79,32 @@ export async function GET(
       break
     }
 
-    if (!res.ok) break
-
-    const json = (await res.json()) as {
-      items?: IgCollectionItem[]
-      more_available?: boolean
-      next_max_id?: string
+    console.log('[instagram/posts] HTTP status:', res.status, 'url:', url.toString())
+    if (!res.ok) {
+      const errText = await res.text()
+      console.error('[instagram/posts] error body:', errText.slice(0, 500))
+      break
     }
 
+    const rawText = await res.text()
+    let json: { items?: IgCollectionItem[]; more_available?: boolean; next_max_id?: string }
+    try {
+      json = JSON.parse(rawText) as typeof json
+    } catch {
+      console.error('[instagram/posts] JSON parse error, raw:', rawText.slice(0, 500))
+      break
+    }
+
+    const topKeys = Object.keys(json)
+    console.log('[instagram/posts] top-level keys:', topKeys)
     console.log('[instagram/posts] item count:', json.items?.length ?? 0)
     if (json.items?.length) {
       console.log('[instagram/posts] first item keys:', Object.keys(json.items[0]))
+      if (json.items[0]) {
+        console.log('[instagram/posts] first item sample:', JSON.stringify(json.items[0]).slice(0, 300))
+      }
+    } else {
+      console.log('[instagram/posts] full response (truncated):', JSON.stringify(json).slice(0, 500))
     }
 
     for (const item of json.items ?? []) {

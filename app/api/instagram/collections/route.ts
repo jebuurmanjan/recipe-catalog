@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireUser } from '@/lib/auth'
 import { createServiceClient } from '@/lib/supabase/service'
 
+export const maxDuration = 30
+
 const IG_APP_ID = process.env.INSTAGRAM_X_IG_APP_ID ?? '936619743392459'
 const IG_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
@@ -46,6 +48,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Could not reach Instagram' }, { status: 502 })
   }
 
+  console.log('[instagram/collections] IG status:', res.status)
+
   if (res.status === 401 || res.status === 403) {
     return NextResponse.json(
       { error: 'Instagram session expired. Please reconnect.' },
@@ -54,6 +58,8 @@ export async function GET(req: NextRequest) {
   }
 
   if (!res.ok) {
+    const errBody = await res.text()
+    console.error('[instagram/collections] IG error body:', errBody.slice(0, 300))
     return NextResponse.json(
       { error: `Instagram returned ${res.status}` },
       { status: 502 }
