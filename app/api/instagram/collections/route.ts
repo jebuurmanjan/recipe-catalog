@@ -66,8 +66,35 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  const json = (await res.json()) as {
+  // Instagram serves an HTML login/challenge page (status 200) when the
+  // session cookie is rejected — guard against parsing that as JSON.
+  const rawText = await res.text()
+  const contentType = res.headers.get('content-type') ?? ''
+  if (contentType.includes('text/html') || rawText.trimStart().startsWith('<')) {
+    console.error(
+      '[instagram/collections] got HTML instead of JSON — session likely invalid. Body head:',
+      rawText.slice(0, 200)
+    )
+    return NextResponse.json(
+      {
+        error:
+          'Instagram rejected the session cookie. Please reconnect with a fresh sessionid from your browser.',
+      },
+      { status: 401 }
+    )
+  }
+
+  let json: {
     items?: { collection_id: string; collection_name: string; media_count?: number; cover_media?: { image_versions2?: { candidates?: { url: string }[] } } }[]
+  }
+  try {
+    json = JSON.parse(rawText)
+  } catch {
+    console.error('[instagram/collections] JSON parse failed. Body head:', rawText.slice(0, 200))
+    return NextResponse.json(
+      { error: 'Unexpected response from Instagram. Please reconnect.' },
+      { status: 502 }
+    )
   }
 
   const collections = (json.items ?? []).map((c) => ({
