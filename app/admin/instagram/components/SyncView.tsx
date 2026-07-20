@@ -52,7 +52,8 @@ export default function SyncView({ onDisconnect }: Props) {
       const res = await fetch('/api/instagram/collections')
       const data = await res.json()
       if (!res.ok) {
-        if (res.status === 401) onDisconnect()
+        // Show the real reason instead of silently bouncing back to the
+        // connect form. The error copy already tells the user what to do.
         setCollectionsError(data.error ?? 'Failed to load collections')
         return
       }
@@ -194,9 +195,14 @@ export default function SyncView({ onDisconnect }: Props) {
         <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
           {collectionsError}
         </p>
-        <button type="button" onClick={loadCollections} className="btn-secondary">
-          Retry
-        </button>
+        <div className="flex gap-2">
+          <button type="button" onClick={loadCollections} className="btn-secondary">
+            Retry
+          </button>
+          <button type="button" onClick={onDisconnect} className="btn-secondary">
+            Reconnect
+          </button>
+        </div>
       </div>
     )
   }
