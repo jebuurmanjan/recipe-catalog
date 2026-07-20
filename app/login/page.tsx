@@ -28,9 +28,6 @@ function LoginForm() {
     try {
       const { error: err } = await supabase.auth.signInWithOtp({
         email: email.trim(),
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(from)}`,
-        },
       })
       if (err) setError(err.message)
       else setStep('code')
